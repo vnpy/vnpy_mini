@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytz
 from datetime import datetime
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
 from vnpy.event import EventEngine
 
 from ..api import (
@@ -84,9 +84,11 @@ DIRECTION_MINI2VT[THOST_FTDC_PD_Long] = Direction.LONG
 DIRECTION_MINI2VT[THOST_FTDC_PD_Short] = Direction.SHORT
 
 # 委托类型映射
-ORDERTYPE_VT2MINI: Dict[OrderType, str] = {
-    OrderType.LIMIT: THOST_FTDC_OPT_LimitPrice,
-    OrderType.MARKET: THOST_FTDC_OPT_AnyPrice
+ORDERTYPE_VT2MINI: Dict[OrderType, Tuple] = {
+    OrderType.LIMIT: (THOST_FTDC_OPT_LimitPrice, THOST_FTDC_TC_GFD, THOST_FTDC_VC_AV),
+    OrderType.MARKET: (THOST_FTDC_OPT_AnyPrice, THOST_FTDC_TC_GFD, THOST_FTDC_VC_AV),
+    OrderType.FAK: (THOST_FTDC_OPT_LimitPrice, THOST_FTDC_TC_IOC, THOST_FTDC_VC_AV),
+    OrderType.FOK: (THOST_FTDC_OPT_LimitPrice, THOST_FTDC_TC_IOC, THOST_FTDC_VC_CV),
 }
 ORDERTYPE_MINI2VT = {v: k for k, v in ORDERTYPE_VT2MINI.items()}
 
@@ -719,14 +721,25 @@ class MiniTdApi(TdApi):
 
     def send_order(self, req: OrderRequest) -> str:
         """委托下单"""
+        if req.offset not in OFFSET_VT2MINI:
+            self.gateway.write_log("请选择开平方向")
+            return ""
+
+        if req.type not in ORDERTYPE_VT2MINI:
+            self.gateway.write_log(f"当前接口不支持该类型的委托{req.type.value}")
+            return ""
+
         self.order_ref += 1
+
+        tp = ORDERTYPE_VT2MINI[req.type]
+        price_type, time_condition, volume_condition = tp
 
         mini_req: dict = {
             "InstrumentID": req.symbol,
             "ExchangeID": req.exchange.value,
             "LimitPrice": req.price,
             "VolumeTotalOriginal": int(req.volume),
-            "OrderPriceType": ORDERTYPE_VT2MINI.get(req.type, ""),
+            "OrderPriceType": price_type,
             "Direction": DIRECTION_VT2MINI.get(req.direction, ""),
             "CombOffsetFlag": OFFSET_VT2MINI.get(req.offset, ""),
             "OrderRef": str(self.order_ref),
@@ -737,19 +750,10 @@ class MiniTdApi(TdApi):
             "ContingentCondition": THOST_FTDC_CC_Immediately,
             "ForceCloseReason": THOST_FTDC_FCC_NotForceClose,
             "IsAutoSuspend": 0,
-            "TimeCondition": THOST_FTDC_TC_GFD,
-            "VolumeCondition": THOST_FTDC_VC_AV,
+            "TimeCondition": time_condition,
+            "VolumeCondition": volume_condition,
             "MinVolume": 1
         }
-
-        if req.type == OrderType.FAK:
-            mini_req["OrderPriceType"] = THOST_FTDC_OPT_LimitPrice
-            mini_req["TimeCondition"] = THOST_FTDC_TC_IOC
-            mini_req["VolumeCondition"] = THOST_FTDC_VC_AV
-        elif req.type == OrderType.FOK:
-            mini_req["OrderPriceType"] = THOST_FTDC_OPT_LimitPrice
-            mini_req["TimeCondition"] = THOST_FTDC_TC_IOC
-            mini_req["VolumeCondition"] = THOST_FTDC_VC_CV
 
         self.reqid += 1
         self.reqOrderInsert(mini_req, self.reqid)
