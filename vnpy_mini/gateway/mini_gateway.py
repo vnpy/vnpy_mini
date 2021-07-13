@@ -223,8 +223,8 @@ class MiniGateway(BaseGateway):
 
     def init_query(self) -> None:
         """初始化查询任务"""
-        self.count = 0
-        self.query_functions = [self.query_account, self.query_position]
+        self.count: int = 0
+        self.query_functions: list = [self.query_account, self.query_position]
         self.event_engine.register(EVENT_TIMER, self.process_timer_event)
 
 
@@ -293,7 +293,7 @@ class MiniMdApi(MdApi):
         if not contract:
             return
 
-        timestamp: str = f"{data['ActionDay']} {data['UpdateTime']}.{int(data['UpdateMillisec']/100)}"
+        timestamp: str = f"{self.current_date} {data['UpdateTime']}.{int(data['UpdateMillisec']/100)}"
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S.%f")
         dt: datetime = CHINA_TZ.localize(dt)
 
@@ -349,17 +349,13 @@ class MiniMdApi(MdApi):
 
         # 禁止重复发起连接，会导致异常崩溃
         if not self.connect_status:
-            path = get_folder_path(self.gateway_name.lower())
+            path: Path = get_folder_path(self.gateway_name.lower())
             self.createFtdcMdApi((str(path) + "\\Md").encode("GBK"))
 
             self.registerFront(address)
             self.init()
 
             self.connect_status = True
-
-        #如果已经连接，则马上登录
-        elif not self.login_status:
-            self.login()
 
     def login(self) -> None:
         """用户登录"""
