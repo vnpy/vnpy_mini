@@ -219,6 +219,8 @@ class MiniGateway(BaseGateway):
         func()
         self.query_functions.append(func)
 
+        self.md_api.update_date()
+
     def init_query(self) -> None:
         """初始化查询任务"""
         self.count = 0
@@ -245,6 +247,8 @@ class MiniMdApi(MdApi):
         self.userid: str = ""
         self.password: str = ""
         self.brokerid: str = ""
+
+        self.current_date: str = datetime.now().strftime("%Y%m%d")
 
     def onFrontConnected(self) -> None:
         """服务器连接成功回报"""
@@ -379,6 +383,9 @@ class MiniMdApi(MdApi):
         if self.connect_status:
             self.exit()
 
+    def update_date(self) -> None:
+        """更新当前日期"""
+        self.current_date = datetime.now().strftime("%Y%m%d")
 
 class MiniTdApi(TdApi):
     """"""
