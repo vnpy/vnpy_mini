@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 import pytz
 from datetime import datetime
 from typing import Dict, List, Set, Tuple
@@ -124,6 +125,7 @@ OPTIONTYPE_MINI2VT: Dict[str, OptionType] = {
 }
 
 # 其他常量
+MAX_FLOAT = sys.float_info.max                  # 浮点数极限值
 CHINA_TZ = pytz.timezone("Asia/Shanghai")       # 中国时区
 
 # 合约数据全局缓存字典
@@ -298,30 +300,30 @@ class MiniMdApi(MdApi):
             name=contract.name,
             volume=data["Volume"],
             open_interest=data["OpenInterest"],
-            last_price=data["LastPrice"],
+            last_price=adjust_price(data["LastPrice"]),
             limit_up=data["UpperLimitPrice"],
             limit_down=data["LowerLimitPrice"],
-            open_price=data["OpenPrice"],
-            high_price=data["HighestPrice"],
-            low_price=data["LowestPrice"],
-            pre_close=data["PreClosePrice"],
-            bid_price_1=data["BidPrice1"],
-            ask_price_1=data["AskPrice1"],
+            open_price=adjust_price(data["OpenPrice"]),
+            high_price=adjust_price(data["HighestPrice"]),
+            low_price=adjust_price(data["LowestPrice"]),
+            pre_close=adjust_price(data["PreClosePrice"]),
+            bid_price_1=adjust_price(data["BidPrice1"]),
+            ask_price_1=adjust_price(data["AskPrice1"]),
             bid_volume_1=data["BidVolume1"],
             ask_volume_1=data["AskVolume1"],
             gateway_name=self.gateway_name
         )
 
         if data["BidPrice2"]:
-            tick.bid_price_2 = data["BidPrice2"]
-            tick.bid_price_3 = data["BidPrice3"]
-            tick.bid_price_4 = data["BidPrice4"]
-            tick.bid_price_5 = data["BidPrice5"]
+            tick.bid_price_2 = adjust_price(data["BidPrice2"])
+            tick.bid_price_3 = adjust_price(data["BidPrice3"])
+            tick.bid_price_4 = adjust_price(data["BidPrice4"])
+            tick.bid_price_5 = adjust_price(data["BidPrice5"])
 
-            tick.ask_price_2 = data["AskPrice2"]
-            tick.ask_price_3 = data["AskPrice3"]
-            tick.ask_price_4 = data["AskPrice4"]
-            tick.ask_price_5 = data["AskPrice5"]
+            tick.ask_price_2 = adjust_price(data["AskPrice2"])
+            tick.ask_price_3 = adjust_price(data["AskPrice3"])
+            tick.ask_price_4 = adjust_price(data["AskPrice4"])
+            tick.ask_price_5 = adjust_price(data["AskPrice5"])
 
             tick.bid_volume_2 = data["BidVolume2"]
             tick.bid_volume_3 = data["BidVolume3"]
@@ -804,3 +806,10 @@ class MiniTdApi(TdApi):
         """关闭连接"""
         if self.connect_status:
             self.exit()
+
+
+def adjust_price(price: float) -> float:
+    """将异常的浮点数最大值（MAX_FLOAT）数据调整为0"""
+    if price == MAX_FLOAT:
+        price = 0
+    return price
