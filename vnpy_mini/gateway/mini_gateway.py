@@ -495,6 +495,10 @@ class MiniTdApi(TdApi):
     def onRspQryInvestorPosition(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """持仓查询回报"""
         if not data:
+            if last:
+                for position in self.positions.values():
+                    self.gateway.on_position(position)
+                self.positions.clear()
             return
 
         # 必须已经收到了合约信息后才能处理
@@ -542,12 +546,6 @@ class MiniTdApi(TdApi):
                 position.frozen += data["ShortFrozen"]
             else:
                 position.frozen += data["LongFrozen"]
-
-        if last:
-            for position in self.positions.values():
-                self.gateway.on_position(position)
-
-            self.positions.clear()
 
     def onRspQryTradingAccount(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """资金查询回报"""
