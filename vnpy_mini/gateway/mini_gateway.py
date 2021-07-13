@@ -398,15 +398,15 @@ class MiniTdApi(TdApi):
 
         self.connect_status: bool = False
         self.login_status: bool = False
-        self.auth_staus: bool = False
+        self.auth_status: bool = False
         self.login_failed: bool = False
         self.contract_inited: bool = False
 
-        self.userid: str  = ""
-        self.password: str  = ""
-        self.brokerid: str  = ""
-        self.auth_code: str  = ""
-        self.appid: str  = ""
+        self.userid: str = ""
+        self.password: str = ""
+        self.brokerid: str = ""
+        self.auth_code: str = ""
+        self.appid: str = ""
 
         self.frontid: int = 0
         self.sessionid: int = 0
@@ -433,7 +433,7 @@ class MiniTdApi(TdApi):
     def onRspAuthenticate(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """用户授权验证回报"""
         if not error['ErrorID']:
-            self.auth_staus = True
+            self.auth_status = True
             self.gateway.write_log("交易服务器授权验证成功")
             self.login()
         else:
@@ -457,7 +457,7 @@ class MiniTdApi(TdApi):
 
     def onRspOrderInsert(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """委托下单失败回报"""
-        order_ref: str  = data["OrderRef"]
+        order_ref: str = data["OrderRef"]
         orderid: str = f"{self.frontid}_{self.sessionid}_{order_ref}"
 
         symbol: str = data["InstrumentID"]
