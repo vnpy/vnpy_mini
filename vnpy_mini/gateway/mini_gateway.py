@@ -563,6 +563,7 @@ class MiniTdApi(TdApi):
             gateway_name=self.gateway_name
         )
         account.available = data["Available"]
+        account.balance = account.available + account.frozen
 
         self.gateway.on_account(account)
 
