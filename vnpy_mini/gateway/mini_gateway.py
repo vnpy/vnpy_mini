@@ -416,6 +416,8 @@ class MiniTdApi(TdApi):
         self.positions: Dict[str, PositionData] = {}
         self.sysid_orderid_map: Dict[str, str] = {}
 
+        self.trading_date: str = ""
+
     def onFrontConnected(self) -> None:
         """服务器连接成功回报"""
         self.gateway.write_log("交易服务器连接成功")
@@ -442,6 +444,7 @@ class MiniTdApi(TdApi):
     def onRspUserLogin(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """用户登录请求回报"""
         if not error["ErrorID"]:
+            self.trading_date = data["TradingDay"]
             self.frontid = data["FrontID"]
             self.sessionid = data["SessionID"]
             self.login_status = True
@@ -549,6 +552,7 @@ class MiniTdApi(TdApi):
 
     def onRspQryTradingAccount(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """资金查询回报"""
+
         if "AccountID" not in data:
             return
 
@@ -606,6 +610,16 @@ class MiniTdApi(TdApi):
             self.order_data.append(data)
             return
 
+        insert_time = data.get("InsertTime", None)
+        if not insert_time:
+            if STATUS_MINI2VT[data["OrderStatus"]] == Status.CANCELLED:
+                time = datetime.now().strftime("%H:%M:%S")
+                timestamp: str = f"{self.trading_date} {time}"
+            else:
+                return
+        else:
+            timestamp: str = f"{self.trading_date} {data['InsertTime']}"
+
         symbol: str = data["InstrumentID"]
         contract: ContractData = symbol_contract_map[symbol]
 
@@ -614,7 +628,6 @@ class MiniTdApi(TdApi):
         order_ref: str = data["OrderRef"]
         orderid: str = f"{frontid}_{sessionid}_{order_ref}"
 
-        timestamp: str = f"{data['InsertDate']} {data['InsertTime']}"
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S")
         dt: datetime = CHINA_TZ.localize(dt)
 
