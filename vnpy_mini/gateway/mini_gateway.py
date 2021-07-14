@@ -582,6 +582,12 @@ class MiniTdApi(TdApi):
 
             # 期权相关
             if contract.product == Product.OPTION:
+                # 移除郑商所期权产品名称带有的C/P后缀
+                if contract.exchange == Exchange.CZCE:
+                    contract.option_portfolio = data["ProductID"][:-1]
+                else:
+                    contract.option_portfolio = data["ProductID"]
+
                 contract.option_underlying = data["UnderlyingInstrID"]
                 contract.option_type = OPTIONTYPE_MINI2VT.get(data["OptionsType"], None)
                 contract.option_strike = data["StrikePrice"]
@@ -631,11 +637,13 @@ class MiniTdApi(TdApi):
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S")
         dt: datetime = CHINA_TZ.localize(dt)
 
+        tp = (data["OrderPriceType"], data["TimeCondition"], data["VolumeCondition"])
+
         order: OrderData = OrderData(
             symbol=symbol,
             exchange=contract.exchange,
             orderid=orderid,
-            type=ORDERTYPE_MINI2VT[data["OrderPriceType"]],
+            type=ORDERTYPE_MINI2VT[tp],
             direction=DIRECTION_MINI2VT[data["Direction"]],
             offset=OFFSET_MINI2VT[data["CombOffsetFlag"]],
             price=data["LimitPrice"],
