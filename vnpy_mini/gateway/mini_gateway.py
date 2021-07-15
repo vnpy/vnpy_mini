@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 import pytz
 from datetime import datetime
 from typing import Dict, List, Set, Tuple
@@ -124,6 +125,7 @@ OPTIONTYPE_MINI2VT: Dict[str, OptionType] = {
 }
 
 # 其他常量
+MAX_FLOAT = sys.float_info.max                  # 浮点数极限值
 CHINA_TZ = pytz.timezone("Asia/Shanghai")       # 中国时区
 
 # 合约数据全局缓存字典
@@ -217,10 +219,12 @@ class MiniGateway(BaseGateway):
         func()
         self.query_functions.append(func)
 
+        self.md_api.update_date()
+
     def init_query(self) -> None:
         """初始化查询任务"""
-        self.count = 0
-        self.query_functions = [self.query_account, self.query_position]
+        self.count: int = 0
+        self.query_functions: list = [self.query_account, self.query_position]
         self.event_engine.register(EVENT_TIMER, self.process_timer_event)
 
 
@@ -243,6 +247,8 @@ class MiniMdApi(MdApi):
         self.userid: str = ""
         self.password: str = ""
         self.brokerid: str = ""
+
+        self.current_date: str = datetime.now().strftime("%Y%m%d")
 
     def onFrontConnected(self) -> None:
         """服务器连接成功回报"""
@@ -287,7 +293,7 @@ class MiniMdApi(MdApi):
         if not contract:
             return
 
-        timestamp: str = f"{data['ActionDay']} {data['UpdateTime']}.{int(data['UpdateMillisec']/100)}"
+        timestamp: str = f"{self.current_date} {data['UpdateTime']}.{int(data['UpdateMillisec']/100)}"
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S.%f")
         dt: datetime = CHINA_TZ.localize(dt)
 
@@ -298,30 +304,30 @@ class MiniMdApi(MdApi):
             name=contract.name,
             volume=data["Volume"],
             open_interest=data["OpenInterest"],
-            last_price=data["LastPrice"],
+            last_price=adjust_price(data["LastPrice"]),
             limit_up=data["UpperLimitPrice"],
             limit_down=data["LowerLimitPrice"],
-            open_price=data["OpenPrice"],
-            high_price=data["HighestPrice"],
-            low_price=data["LowestPrice"],
-            pre_close=data["PreClosePrice"],
-            bid_price_1=data["BidPrice1"],
-            ask_price_1=data["AskPrice1"],
+            open_price=adjust_price(data["OpenPrice"]),
+            high_price=adjust_price(data["HighestPrice"]),
+            low_price=adjust_price(data["LowestPrice"]),
+            pre_close=adjust_price(data["PreClosePrice"]),
+            bid_price_1=adjust_price(data["BidPrice1"]),
+            ask_price_1=adjust_price(data["AskPrice1"]),
             bid_volume_1=data["BidVolume1"],
             ask_volume_1=data["AskVolume1"],
             gateway_name=self.gateway_name
         )
 
         if data["BidPrice2"]:
-            tick.bid_price_2 = data["BidPrice2"]
-            tick.bid_price_3 = data["BidPrice3"]
-            tick.bid_price_4 = data["BidPrice4"]
-            tick.bid_price_5 = data["BidPrice5"]
+            tick.bid_price_2 = adjust_price(data["BidPrice2"])
+            tick.bid_price_3 = adjust_price(data["BidPrice3"])
+            tick.bid_price_4 = adjust_price(data["BidPrice4"])
+            tick.bid_price_5 = adjust_price(data["BidPrice5"])
 
-            tick.ask_price_2 = data["AskPrice2"]
-            tick.ask_price_3 = data["AskPrice3"]
-            tick.ask_price_4 = data["AskPrice4"]
-            tick.ask_price_5 = data["AskPrice5"]
+            tick.ask_price_2 = adjust_price(data["AskPrice2"])
+            tick.ask_price_3 = adjust_price(data["AskPrice3"])
+            tick.ask_price_4 = adjust_price(data["AskPrice4"])
+            tick.ask_price_5 = adjust_price(data["AskPrice5"])
 
             tick.bid_volume_2 = data["BidVolume2"]
             tick.bid_volume_3 = data["BidVolume3"]
@@ -343,17 +349,13 @@ class MiniMdApi(MdApi):
 
         # 禁止重复发起连接，会导致异常崩溃
         if not self.connect_status:
-            path = get_folder_path(self.gateway_name.lower())
+            path: Path = get_folder_path(self.gateway_name.lower())
             self.createFtdcMdApi((str(path) + "\\Md").encode("GBK"))
 
             self.registerFront(address)
             self.init()
 
             self.connect_status = True
-
-        #如果已经连接，则马上登录
-        elif not self.login_status:
-            self.login()
 
     def login(self) -> None:
         """用户登录"""
@@ -377,6 +379,9 @@ class MiniMdApi(MdApi):
         if self.connect_status:
             self.exit()
 
+    def update_date(self) -> None:
+        """更新当前日期"""
+        self.current_date = datetime.now().strftime("%Y%m%d")
 
 class MiniTdApi(TdApi):
     """"""
@@ -393,15 +398,15 @@ class MiniTdApi(TdApi):
 
         self.connect_status: bool = False
         self.login_status: bool = False
-        self.auth_staus: bool = False
+        self.auth_status: bool = False
         self.login_failed: bool = False
         self.contract_inited: bool = False
 
-        self.userid: str  = ""
-        self.password: str  = ""
-        self.brokerid: str  = ""
-        self.auth_code: str  = ""
-        self.appid: str  = ""
+        self.userid: str = ""
+        self.password: str = ""
+        self.brokerid: str = ""
+        self.auth_code: str = ""
+        self.appid: str = ""
 
         self.frontid: int = 0
         self.sessionid: int = 0
@@ -410,6 +415,8 @@ class MiniTdApi(TdApi):
         self.trade_data: List[dict] = []
         self.positions: Dict[str, PositionData] = {}
         self.sysid_orderid_map: Dict[str, str] = {}
+
+        self.trading_date: str = ""
 
     def onFrontConnected(self) -> None:
         """服务器连接成功回报"""
@@ -428,7 +435,7 @@ class MiniTdApi(TdApi):
     def onRspAuthenticate(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """用户授权验证回报"""
         if not error['ErrorID']:
-            self.auth_staus = True
+            self.auth_status = True
             self.gateway.write_log("交易服务器授权验证成功")
             self.login()
         else:
@@ -437,6 +444,7 @@ class MiniTdApi(TdApi):
     def onRspUserLogin(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """用户登录请求回报"""
         if not error["ErrorID"]:
+            self.trading_date = data["TradingDay"]
             self.frontid = data["FrontID"]
             self.sessionid = data["SessionID"]
             self.login_status = True
@@ -452,7 +460,7 @@ class MiniTdApi(TdApi):
 
     def onRspOrderInsert(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """委托下单失败回报"""
-        order_ref: str  = data["OrderRef"]
+        order_ref: str = data["OrderRef"]
         orderid: str = f"{self.frontid}_{self.sessionid}_{order_ref}"
 
         symbol: str = data["InstrumentID"]
@@ -490,6 +498,10 @@ class MiniTdApi(TdApi):
     def onRspQryInvestorPosition(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """持仓查询回报"""
         if not data:
+            if last:
+                for position in self.positions.values():
+                    self.gateway.on_position(position)
+                self.positions.clear()
             return
 
         # 必须已经收到了合约信息后才能处理
@@ -538,14 +550,9 @@ class MiniTdApi(TdApi):
             else:
                 position.frozen += data["LongFrozen"]
 
-        if last:
-            for position in self.positions.values():
-                self.gateway.on_position(position)
-
-            self.positions.clear()
-
     def onRspQryTradingAccount(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """资金查询回报"""
+
         if "AccountID" not in data:
             return
 
@@ -556,6 +563,7 @@ class MiniTdApi(TdApi):
             gateway_name=self.gateway_name
         )
         account.available = data["Available"]
+        account.balance = account.available + account.frozen
 
         self.gateway.on_account(account)
 
@@ -575,6 +583,12 @@ class MiniTdApi(TdApi):
 
             # 期权相关
             if contract.product == Product.OPTION:
+                # 移除郑商所期权产品名称带有的C/P后缀
+                if contract.exchange == Exchange.CZCE:
+                    contract.option_portfolio = data["ProductID"][:-1]
+                else:
+                    contract.option_portfolio = data["ProductID"]
+
                 contract.option_underlying = data["UnderlyingInstrID"]
                 contract.option_type = OPTIONTYPE_MINI2VT.get(data["OptionsType"], None)
                 contract.option_strike = data["StrikePrice"]
@@ -603,6 +617,16 @@ class MiniTdApi(TdApi):
             self.order_data.append(data)
             return
 
+        insert_time = data.get("InsertTime", None)
+        if not insert_time:
+            if STATUS_MINI2VT[data["OrderStatus"]] == Status.CANCELLED:
+                time = datetime.now().strftime("%H:%M:%S")
+                timestamp: str = f"{self.trading_date} {time}"
+            else:
+                return
+        else:
+            timestamp: str = f"{self.trading_date} {data['InsertTime']}"
+
         symbol: str = data["InstrumentID"]
         contract: ContractData = symbol_contract_map[symbol]
 
@@ -611,15 +635,16 @@ class MiniTdApi(TdApi):
         order_ref: str = data["OrderRef"]
         orderid: str = f"{frontid}_{sessionid}_{order_ref}"
 
-        timestamp: str = f"{data['InsertDate']} {data['InsertTime']}"
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S")
         dt: datetime = CHINA_TZ.localize(dt)
+
+        tp = (data["OrderPriceType"], data["TimeCondition"], data["VolumeCondition"])
 
         order: OrderData = OrderData(
             symbol=symbol,
             exchange=contract.exchange,
             orderid=orderid,
-            type=ORDERTYPE_MINI2VT[data["OrderPriceType"]],
+            type=ORDERTYPE_MINI2VT[tp],
             direction=DIRECTION_MINI2VT[data["Direction"]],
             offset=OFFSET_MINI2VT[data["CombOffsetFlag"]],
             price=data["LimitPrice"],
@@ -804,3 +829,10 @@ class MiniTdApi(TdApi):
         """关闭连接"""
         if self.connect_status:
             self.exit()
+
+
+def adjust_price(price: float) -> float:
+    """将异常的浮点数最大值（MAX_FLOAT）数据调整为0"""
+    if price == MAX_FLOAT:
+        price = 0
+    return price
