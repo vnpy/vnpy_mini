@@ -383,6 +383,7 @@ class MiniMdApi(MdApi):
         """更新当前日期"""
         self.current_date = datetime.now().strftime("%Y%m%d")
 
+
 class MiniTdApi(TdApi):
     """"""
 
