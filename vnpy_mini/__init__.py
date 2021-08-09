@@ -29,4 +29,7 @@ except ImportError:
 import importlib_metadata
 
 
-__version__ = importlib_metadata.version("vnpy_mini")
+try:
+    __version__ = importlib_metadata.version("vnpy_mini")
+except importlib_metadata.PackageNotFoundError:
+    __version__ = "dev"
