@@ -288,12 +288,19 @@ class MiniMdApi(MdApi):
         if not data["UpdateTime"]:
             return
 
+        # 过滤还没有收到合约数据前的行情推送
         symbol: str = data["InstrumentID"]
         contract: ContractData = symbol_contract_map.get(symbol, None)
         if not contract:
             return
 
-        timestamp: str = f"{self.current_date} {data['UpdateTime']}.{int(data['UpdateMillisec']/100)}"
+        # 对大商所的交易日字段取本地日期
+        if contract.exchange == Exchange.DCE:
+            date_str: str = self.current_date
+        else:
+            date_str: str = data["ActionDay"]
+
+        timestamp: str = f"{date_str} {data['UpdateTime']}.{int(data['UpdateMillisec']/100)}"
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S.%f")
         dt: datetime = CHINA_TZ.localize(dt)
 
@@ -303,6 +310,7 @@ class MiniMdApi(MdApi):
             datetime=dt,
             name=contract.name,
             volume=data["Volume"],
+            turnover=data["Turnover"],
             open_interest=data["OpenInterest"],
             last_price=adjust_price(data["LastPrice"]),
             limit_up=data["UpperLimitPrice"],
@@ -318,7 +326,7 @@ class MiniMdApi(MdApi):
             gateway_name=self.gateway_name
         )
 
-        if data["BidPrice2"]:
+        if data["BidVolume2"] or data["AskVolume2"]:
             tick.bid_price_2 = adjust_price(data["BidPrice2"])
             tick.bid_price_3 = adjust_price(data["BidPrice3"])
             tick.bid_price_4 = adjust_price(data["BidPrice4"])
