@@ -27,6 +27,7 @@ from ..api import (
     THOST_FTDC_OFEN_CloseToday,
     THOST_FTDC_PC_Futures,
     THOST_FTDC_PC_Options,
+    THOST_FTDC_PC_SpotOption,
     THOST_FTDC_PC_Combination,
     THOST_FTDC_CP_CallOptions,
     THOST_FTDC_CP_PutOptions,
@@ -115,7 +116,8 @@ EXCHANGE_MINI2VT: Dict[str, Exchange] = {
 PRODUCT_MINI2VT: Dict[str, Product] = {
     THOST_FTDC_PC_Futures: Product.FUTURES,
     THOST_FTDC_PC_Options: Product.OPTION,
-    THOST_FTDC_PC_Combination: Product.SPREAD
+    THOST_FTDC_PC_Combination: Product.SPREAD,
+    THOST_FTDC_PC_SpotOption: Product.OPTION
 }
 
 # 期权类型映射
