@@ -11,16 +11,19 @@ def get_ext_modules() -> list:
     Windows直接使用预编译的pyd即可
     Mac由于缺乏二进制库支持无法使用
     """
-    if platform.system() != "Linux":
-        return []
-
-    compiler_flags = [
-        "-std=c++17",
-        "-O3",
-        "-Wno-delete-incomplete", "-Wno-sign-compare",
-    ]
-    extra_link_args = ["-lstdc++"]
-    runtime_library_dirs = ["$ORIGIN"]
+    if platform.system() == "Linux":
+        extra_compile_flags = [
+            "-std=c++17",
+            "-O3",
+            "-Wno-delete-incomplete",
+            "-Wno-sign-compare",
+        ]
+        extra_link_args = ["-lstdc++"]
+        runtime_library_dirs = ["$ORIGIN"]
+    else:
+        extra_compile_flags = ["-O2"]
+        extra_link_args = []
+        runtime_library_dirs = []
 
     vnminimd = Extension(
         "vnpy_mini.api.vnminimd",
@@ -33,7 +36,7 @@ def get_ext_modules() -> list:
         undef_macros=[],
         library_dirs=["vnpy_mini/api/libs", "vnpy_mini/api"],
         libraries=["thostmduserapi", "thosttraderapi"],
-        extra_compile_args=compiler_flags,
+        extra_compile_args=extra_compile_flags,
         extra_link_args=extra_link_args,
         runtime_library_dirs=runtime_library_dirs,
         depends=[],
@@ -51,7 +54,7 @@ def get_ext_modules() -> list:
         undef_macros=[],
         library_dirs=["vnpy_mini/api/libs", "vnpy_mini/api"],
         libraries=["thostmduserapi", "thosttraderapi"],
-        extra_compile_args=compiler_flags,
+        extra_compile_args=extra_compile_flags,
         extra_link_args=extra_link_args,
         runtime_library_dirs=runtime_library_dirs,
         depends=[],
