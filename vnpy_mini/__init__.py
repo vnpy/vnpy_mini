@@ -20,13 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-try:
-    from .gateway import MiniGateway
-except ImportError:
-    pass
-
 
 import importlib_metadata
+
+from .gateway import MiniGateway
 
 
 try:
