@@ -2,7 +2,7 @@ from pathlib import Path
 import sys
 import pytz
 from datetime import datetime
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
 from vnpy.event import EventEngine
 
 from ..api import (
@@ -136,7 +136,7 @@ symbol_contract_map: Dict[str, ContractData] = {}
 
 class MiniGateway(BaseGateway):
     """
-    vn.py用于对接CTP Mini柜台的交易接口。
+    VeighNa用于对接CTP Mini柜台的交易接口。
     """
 
     default_name: str = "MINI"
@@ -246,7 +246,7 @@ class MiniMdApi(MdApi):
 
         self.connect_status: bool = False
         self.login_status: bool = False
-        self.subscribed: Set = set()
+        self.subscribed: set = set()
 
         self.userid: str = ""
         self.password: str = ""
