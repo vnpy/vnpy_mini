@@ -3,7 +3,31 @@ import sys
 import pytz
 from datetime import datetime
 from typing import Dict, List, Tuple
+
 from vnpy.event import EventEngine
+from vnpy.trader.constant import (
+    Direction,
+    Offset,
+    Exchange,
+    OrderType,
+    Product,
+    Status,
+    OptionType
+)
+from vnpy.trader.gateway import BaseGateway
+from vnpy.trader.object import (
+    TickData,
+    OrderData,
+    TradeData,
+    PositionData,
+    AccountData,
+    ContractData,
+    OrderRequest,
+    CancelRequest,
+    SubscribeRequest,
+)
+from vnpy.trader.utility import get_folder_path
+from vnpy.trader.event import EVENT_TIMER
 
 from ..api import (
     MdApi,
@@ -40,29 +64,6 @@ from ..api import (
     THOST_FTDC_VC_CV,
     THOST_FTDC_AF_Delete
 )
-from vnpy.trader.constant import (
-    Direction,
-    Offset,
-    Exchange,
-    OrderType,
-    Product,
-    Status,
-    OptionType
-)
-from vnpy.trader.gateway import BaseGateway
-from vnpy.trader.object import (
-    TickData,
-    OrderData,
-    TradeData,
-    PositionData,
-    AccountData,
-    ContractData,
-    OrderRequest,
-    CancelRequest,
-    SubscribeRequest,
-)
-from vnpy.trader.utility import get_folder_path
-from vnpy.trader.event import EVENT_TIMER
 
 
 # 委托状态映射
