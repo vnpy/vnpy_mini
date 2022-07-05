@@ -51,10 +51,8 @@ using namespace pybind11;
 #define ONRSPQRYSETTLEMENTINFO 37
 #define ONRSPQRYINSTRUMENTSTATUS 38
 #define ONRSPQRYTRANSFERBANK 39
-#define ONRSPQRYINVESTORPOSITIONDETAIL 40
 #define ONRSPQRYNOTICE 41
 #define ONRSPQRYSETTLEMENTINFOCONFIRM 42
-#define ONRSPQRYINVESTORPOSITIONCOMBINEDETAIL 43
 #define ONRSPQRYCFMMCTRADINGACCOUNTKEY 44
 #define ONRSPQRYEWARRANTOFFSET 45
 #define ONRSPQRYINVESTORPRODUCTGROUPMARGIN 46
@@ -277,17 +275,11 @@ public:
 	///请求查询转帐银行响应
 	virtual void OnRspQryTransferBank(CThostFtdcTransferBankField *pTransferBank, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-	///请求查询投资者持仓明细响应
-	virtual void OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
 	///请求查询客户通知响应
 	virtual void OnRspQryNotice(CThostFtdcNoticeField *pNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 	///请求查询结算信息确认响应
 	virtual void OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
-
-	///请求查询投资者持仓明细响应
-	virtual void OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPositionCombineDetailField *pInvestorPositionCombineDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 	///查询保证金监管系统经纪公司资金账户密钥响应
 	virtual void OnRspQryCFMMCTradingAccountKey(CThostFtdcCFMMCTradingAccountKeyField *pCFMMCTradingAccountKey, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
@@ -785,13 +777,9 @@ public:
 
 	virtual void onRspQryTransferBank(const dict &data, const dict &error, int reqid, bool last) {};
 
-	virtual void onRspQryInvestorPositionDetail(const dict &data, const dict &error, int reqid, bool last) {};
-
 	virtual void onRspQryNotice(const dict &data, const dict &error, int reqid, bool last) {};
 
 	virtual void onRspQrySettlementInfoConfirm(const dict &data, const dict &error, int reqid, bool last) {};
-
-	virtual void onRspQryInvestorPositionCombineDetail(const dict &data, const dict &error, int reqid, bool last) {};
 
 	virtual void onRspQryCFMMCTradingAccountKey(const dict &data, const dict &error, int reqid, bool last) {};
 
@@ -949,25 +937,9 @@ public:
 
 	int reqUserLogout(const dict &req, int reqid);
 
-	int reqUserPasswordUpdate(const dict &req, int reqid);
-
-	int reqTradingAccountPasswordUpdate(const dict &req, int reqid);
-
 	int reqOrderInsert(const dict &req, int reqid);
 
-	int reqParkedOrderInsert(const dict &req, int reqid);
-
-	int reqParkedOrderAction(const dict &req, int reqid);
-
 	int reqOrderAction(const dict &req, int reqid);
-
-	int reqQueryMaxOrderVolume(const dict &req, int reqid);
-
-	int reqSettlementInfoConfirm(const dict &req, int reqid);
-
-	int reqRemoveParkedOrder(const dict &req, int reqid);
-
-	int reqRemoveParkedOrderAction(const dict &req, int reqid);
 
 	int reqExecOrderInsert(const dict &req, int reqid);
 
@@ -984,8 +956,6 @@ public:
 	int reqOptionSelfCloseInsert(const dict &req, int reqid);
 
 	int reqOptionSelfCloseAction(const dict &req, int reqid);
-
-	int reqTransFund(const dict &req, int reqid);
 
 	int reqQryOrder(const dict &req, int reqid);
 
@@ -1013,33 +983,11 @@ public:
 
 	int reqQryOptionSelfClose(const dict &req, int reqid);
 
-	int reqQrySettlementInfo(const dict &req, int reqid);
-
 	int reqQryInstrumentStatus(const dict &req, int reqid);
-
-	int reqQryTransferBank(const dict &req, int reqid);
-
-	int reqQryInvestorPositionDetail(const dict &req, int reqid);
-
-	int reqQryNotice(const dict &req, int reqid);
-
-	int reqQrySettlementInfoConfirm(const dict &req, int reqid);
-
-	int reqQryInvestorPositionCombineDetail(const dict &req, int reqid);
-
-	int reqQryCFMMCTradingAccountKey(const dict &req, int reqid);
-
-	int reqQryEWarrantOffset(const dict &req, int reqid);
-
-	int reqQryInvestorProductGroupMargin(const dict &req, int reqid);
 
 	int reqQryExchangeMarginRate(const dict &req, int reqid);
 
 	int reqQryExchangeMarginRateAdjust(const dict &req, int reqid);
-
-	int reqQryExchangeRate(const dict &req, int reqid);
-
-	int reqQrySecAgentACIDMap(const dict &req, int reqid);
 
 	int reqQryOptionInstrTradeCost(const dict &req, int reqid);
 
@@ -1050,26 +998,4 @@ public:
 	int reqQryForQuote(const dict &req, int reqid);
 
 	int reqQryQuote(const dict &req, int reqid);
-
-	int reqQryTransferSerial(const dict &req, int reqid);
-
-	int reqQryAccountregister(const dict &req, int reqid);
-
-	int reqQryContractBank(const dict &req, int reqid);
-
-	int reqQryParkedOrder(const dict &req, int reqid);
-
-	int reqQryParkedOrderAction(const dict &req, int reqid);
-
-	int reqQryTradingNotice(const dict &req, int reqid);
-
-	int reqQryBrokerTradingParams(const dict &req, int reqid);
-
-	int reqQryBrokerTradingAlgos(const dict &req, int reqid);
-
-	int reqFromBankToFutureByFuture(const dict &req, int reqid);
-
-	int reqFromFutureToBankByFuture(const dict &req, int reqid);
-
-	int reqQueryBankAccountMoneyByFuture(const dict &req, int reqid);
 };

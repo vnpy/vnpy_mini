@@ -808,27 +808,6 @@ void TdApi::OnRspQryTransferBank(CThostFtdcTransferBankField *pTransferBank, CTh
 	this->task_queue.push(task);
 };
 
-void TdApi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-	Task task = Task();
-	task.task_name = ONRSPQRYINVESTORPOSITIONDETAIL;
-	if (pInvestorPositionDetail)
-	{
-		CThostFtdcInvestorPositionDetailField *task_data = new CThostFtdcInvestorPositionDetailField();
-		*task_data = *pInvestorPositionDetail;
-		task.task_data = task_data;
-	}
-	if (pRspInfo)
-	{
-		CThostFtdcRspInfoField *task_error = new CThostFtdcRspInfoField();
-		*task_error = *pRspInfo;
-		task.task_error = task_error;
-	}
-	task.task_id = nRequestID;
-	task.task_last = bIsLast;
-	this->task_queue.push(task);
-};
-
 void TdApi::OnRspQryNotice(CThostFtdcNoticeField *pNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	Task task = Task();
@@ -858,27 +837,6 @@ void TdApi::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *
 	{
 		CThostFtdcSettlementInfoConfirmField *task_data = new CThostFtdcSettlementInfoConfirmField();
 		*task_data = *pSettlementInfoConfirm;
-		task.task_data = task_data;
-	}
-	if (pRspInfo)
-	{
-		CThostFtdcRspInfoField *task_error = new CThostFtdcRspInfoField();
-		*task_error = *pRspInfo;
-		task.task_error = task_error;
-	}
-	task.task_id = nRequestID;
-	task.task_last = bIsLast;
-	this->task_queue.push(task);
-};
-
-void TdApi::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPositionCombineDetailField *pInvestorPositionCombineDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-	Task task = Task();
-	task.task_name = ONRSPQRYINVESTORPOSITIONCOMBINEDETAIL;
-	if (pInvestorPositionCombineDetail)
-	{
-		CThostFtdcInvestorPositionCombineDetailField *task_data = new CThostFtdcInvestorPositionCombineDetailField();
-		*task_data = *pInvestorPositionCombineDetail;
 		task.task_data = task_data;
 	}
 	if (pRspInfo)
@@ -2250,12 +2208,6 @@ void TdApi::processTask()
 				break;
 			}
 
-			case ONRSPQRYINVESTORPOSITIONDETAIL:
-			{
-				this->processRspQryInvestorPositionDetail(&task);
-				break;
-			}
-
 			case ONRSPQRYNOTICE:
 			{
 				this->processRspQryNotice(&task);
@@ -2265,12 +2217,6 @@ void TdApi::processTask()
 			case ONRSPQRYSETTLEMENTINFOCONFIRM:
 			{
 				this->processRspQrySettlementInfoConfirm(&task);
-				break;
-			}
-
-			case ONRSPQRYINVESTORPOSITIONCOMBINEDETAIL:
-			{
-				this->processRspQryInvestorPositionCombineDetail(&task);
 				break;
 			}
 
@@ -4036,52 +3982,6 @@ void TdApi::processRspQryTransferBank(Task *task)
 	this->onRspQryTransferBank(data, error, task->task_id, task->task_last);
 };
 
-void TdApi::processRspQryInvestorPositionDetail(Task *task)
-{
-	gil_scoped_acquire acquire;
-	dict data;
-	if (task->task_data)
-	{
-		CThostFtdcInvestorPositionDetailField *task_data = (CThostFtdcInvestorPositionDetailField*)task->task_data;
-		data["InstrumentID"] = toUtf(task_data->InstrumentID);
-		data["BrokerID"] = toUtf(task_data->BrokerID);
-		data["InvestorID"] = toUtf(task_data->InvestorID);
-		data["HedgeFlag"] = task_data->HedgeFlag;
-		data["Direction"] = task_data->Direction;
-		data["OpenDate"] = toUtf(task_data->OpenDate);
-		data["TradeID"] = toUtf(task_data->TradeID);
-		data["Volume"] = task_data->Volume;
-		data["OpenPrice"] = task_data->OpenPrice;
-		data["TradingDay"] = toUtf(task_data->TradingDay);
-		data["SettlementID"] = task_data->SettlementID;
-		data["TradeType"] = task_data->TradeType;
-		data["CombInstrumentID"] = toUtf(task_data->CombInstrumentID);
-		data["ExchangeID"] = toUtf(task_data->ExchangeID);
-		data["CloseProfitByDate"] = task_data->CloseProfitByDate;
-		data["CloseProfitByTrade"] = task_data->CloseProfitByTrade;
-		data["PositionProfitByDate"] = task_data->PositionProfitByDate;
-		data["PositionProfitByTrade"] = task_data->PositionProfitByTrade;
-		data["Margin"] = task_data->Margin;
-		data["ExchMargin"] = task_data->ExchMargin;
-		data["MarginRateByMoney"] = task_data->MarginRateByMoney;
-		data["MarginRateByVolume"] = task_data->MarginRateByVolume;
-		data["LastSettlementPrice"] = task_data->LastSettlementPrice;
-		data["SettlementPrice"] = task_data->SettlementPrice;
-		data["CloseVolume"] = task_data->CloseVolume;
-		data["CloseAmount"] = task_data->CloseAmount;
-		delete task_data;
-	}
-	dict error;
-	if (task->task_error)
-	{
-		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
-		error["ErrorID"] = task_error->ErrorID;
-		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
-		delete task_error;
-	}
-	this->onRspQryInvestorPositionDetail(data, error, task->task_id, task->task_last);
-};
-
 void TdApi::processRspQryNotice(Task *task)
 {
 	gil_scoped_acquire acquire;
@@ -4127,46 +4027,6 @@ void TdApi::processRspQrySettlementInfoConfirm(Task *task)
 		delete task_error;
 	}
 	this->onRspQrySettlementInfoConfirm(data, error, task->task_id, task->task_last);
-};
-
-void TdApi::processRspQryInvestorPositionCombineDetail(Task *task)
-{
-	gil_scoped_acquire acquire;
-	dict data;
-	if (task->task_data)
-	{
-		CThostFtdcInvestorPositionCombineDetailField *task_data = (CThostFtdcInvestorPositionCombineDetailField*)task->task_data;
-		data["TradingDay"] = toUtf(task_data->TradingDay);
-		data["OpenDate"] = toUtf(task_data->OpenDate);
-		data["ExchangeID"] = toUtf(task_data->ExchangeID);
-		data["SettlementID"] = task_data->SettlementID;
-		data["BrokerID"] = toUtf(task_data->BrokerID);
-		data["InvestorID"] = toUtf(task_data->InvestorID);
-		data["ComTradeID"] = toUtf(task_data->ComTradeID);
-		data["TradeID"] = toUtf(task_data->TradeID);
-		data["InstrumentID"] = toUtf(task_data->InstrumentID);
-		data["HedgeFlag"] = task_data->HedgeFlag;
-		data["Direction"] = task_data->Direction;
-		data["TotalAmt"] = task_data->TotalAmt;
-		data["Margin"] = task_data->Margin;
-		data["ExchMargin"] = task_data->ExchMargin;
-		data["MarginRateByMoney"] = task_data->MarginRateByMoney;
-		data["MarginRateByVolume"] = task_data->MarginRateByVolume;
-		data["LegID"] = task_data->LegID;
-		data["LegMultiple"] = task_data->LegMultiple;
-		data["CombInstrumentID"] = toUtf(task_data->CombInstrumentID);
-		data["TradeGroupID"] = task_data->TradeGroupID;
-		delete task_data;
-	}
-	dict error;
-	if (task->task_error)
-	{
-		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
-		error["ErrorID"] = task_error->ErrorID;
-		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
-		delete task_error;
-	}
-	this->onRspQryInvestorPositionCombineDetail(data, error, task->task_id, task->task_last);
 };
 
 void TdApi::processRspQryCFMMCTradingAccountKey(Task *task)
@@ -7294,31 +7154,6 @@ int TdApi::reqUserLogout(const dict &req, int reqid)
 	return i;
 };
 
-int TdApi::reqUserPasswordUpdate(const dict &req, int reqid)
-{
-	CThostFtdcUserPasswordUpdateField myreq = CThostFtdcUserPasswordUpdateField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "UserID", myreq.UserID);
-	getString(req, "OldPassword", myreq.OldPassword);
-	getString(req, "NewPassword", myreq.NewPassword);
-	int i = this->api->ReqUserPasswordUpdate(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqTradingAccountPasswordUpdate(const dict &req, int reqid)
-{
-	CThostFtdcTradingAccountPasswordUpdateField myreq = CThostFtdcTradingAccountPasswordUpdateField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "OldPassword", myreq.OldPassword);
-	getString(req, "NewPassword", myreq.NewPassword);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	int i = this->api->ReqTradingAccountPasswordUpdate(&myreq, reqid);
-	return i;
-};
-
 int TdApi::reqOrderInsert(const dict &req, int reqid)
 {
 	CThostFtdcInputOrderField myreq = CThostFtdcInputOrderField();
@@ -7357,79 +7192,6 @@ int TdApi::reqOrderInsert(const dict &req, int reqid)
 	return i;
 };
 
-int TdApi::reqParkedOrderInsert(const dict &req, int reqid)
-{
-	CThostFtdcParkedOrderField myreq = CThostFtdcParkedOrderField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "InstrumentID", myreq.InstrumentID);
-	getString(req, "OrderRef", myreq.OrderRef);
-	getString(req, "UserID", myreq.UserID);
-	getChar(req, "OrderPriceType", &myreq.OrderPriceType);
-	getChar(req, "Direction", &myreq.Direction);
-	getString(req, "CombOffsetFlag", myreq.CombOffsetFlag);
-	getString(req, "CombHedgeFlag", myreq.CombHedgeFlag);
-	getDouble(req, "LimitPrice", &myreq.LimitPrice);
-	getInt(req, "VolumeTotalOriginal", &myreq.VolumeTotalOriginal);
-	getChar(req, "TimeCondition", &myreq.TimeCondition);
-	getString(req, "GTDDate", myreq.GTDDate);
-	getChar(req, "VolumeCondition", &myreq.VolumeCondition);
-	getInt(req, "MinVolume", &myreq.MinVolume);
-	getChar(req, "ContingentCondition", &myreq.ContingentCondition);
-	getDouble(req, "StopPrice", &myreq.StopPrice);
-	getChar(req, "ForceCloseReason", &myreq.ForceCloseReason);
-	getInt(req, "IsAutoSuspend", &myreq.IsAutoSuspend);
-	getString(req, "BusinessUnit", myreq.BusinessUnit);
-	getInt(req, "RequestID", &myreq.RequestID);
-	getInt(req, "UserForceClose", &myreq.UserForceClose);
-	getString(req, "ExchangeID", myreq.ExchangeID);
-	getString(req, "ParkedOrderID", myreq.ParkedOrderID);
-	getChar(req, "UserType", &myreq.UserType);
-	getChar(req, "Status", &myreq.Status);
-	getInt(req, "ErrorID", &myreq.ErrorID);
-	getString(req, "ErrorMsg", myreq.ErrorMsg);
-	getInt(req, "IsSwapOrder", &myreq.IsSwapOrder);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	getString(req, "ClientID", myreq.ClientID);
-	getString(req, "InvestUnitID", myreq.InvestUnitID);
-	getString(req, "IPAddress", myreq.IPAddress);
-	getString(req, "MacAddress", myreq.MacAddress);
-	int i = this->api->ReqParkedOrderInsert(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqParkedOrderAction(const dict &req, int reqid)
-{
-	CThostFtdcParkedOrderActionField myreq = CThostFtdcParkedOrderActionField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getInt(req, "OrderActionRef", &myreq.OrderActionRef);
-	getString(req, "OrderRef", myreq.OrderRef);
-	getInt(req, "RequestID", &myreq.RequestID);
-	getInt(req, "FrontID", &myreq.FrontID);
-	getInt(req, "SessionID", &myreq.SessionID);
-	getString(req, "ExchangeID", myreq.ExchangeID);
-	getString(req, "OrderSysID", myreq.OrderSysID);
-	getChar(req, "ActionFlag", &myreq.ActionFlag);
-	getDouble(req, "LimitPrice", &myreq.LimitPrice);
-	getInt(req, "VolumeChange", &myreq.VolumeChange);
-	getString(req, "UserID", myreq.UserID);
-	getString(req, "InstrumentID", myreq.InstrumentID);
-	getString(req, "ParkedOrderActionID", myreq.ParkedOrderActionID);
-	getChar(req, "UserType", &myreq.UserType);
-	getChar(req, "Status", &myreq.Status);
-	getInt(req, "ErrorID", &myreq.ErrorID);
-	getString(req, "ErrorMsg", myreq.ErrorMsg);
-	getString(req, "InvestUnitID", myreq.InvestUnitID);
-	getString(req, "IPAddress", myreq.IPAddress);
-	getString(req, "MacAddress", myreq.MacAddress);
-	int i = this->api->ReqParkedOrderAction(&myreq, reqid);
-	return i;
-};
-
 int TdApi::reqOrderAction(const dict &req, int reqid)
 {
 	CThostFtdcInputOrderActionField myreq = CThostFtdcInputOrderActionField();
@@ -7452,55 +7214,6 @@ int TdApi::reqOrderAction(const dict &req, int reqid)
 	getString(req, "IPAddress", myreq.IPAddress);
 	getString(req, "MacAddress", myreq.MacAddress);
 	int i = this->api->ReqOrderAction(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQueryMaxOrderVolume(const dict &req, int reqid)
-{
-	CThostFtdcQueryMaxOrderVolumeField myreq = CThostFtdcQueryMaxOrderVolumeField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "InstrumentID", myreq.InstrumentID);
-	getChar(req, "Direction", &myreq.Direction);
-	getChar(req, "OffsetFlag", &myreq.OffsetFlag);
-	getChar(req, "HedgeFlag", &myreq.HedgeFlag);
-	getInt(req, "MaxVolume", &myreq.MaxVolume);
-	int i = this->api->ReqQueryMaxOrderVolume(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqSettlementInfoConfirm(const dict &req, int reqid)
-{
-	CThostFtdcSettlementInfoConfirmField myreq = CThostFtdcSettlementInfoConfirmField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "ConfirmDate", myreq.ConfirmDate);
-	getString(req, "ConfirmTime", myreq.ConfirmTime);
-	int i = this->api->ReqSettlementInfoConfirm(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqRemoveParkedOrder(const dict &req, int reqid)
-{
-	CThostFtdcRemoveParkedOrderField myreq = CThostFtdcRemoveParkedOrderField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "ParkedOrderID", myreq.ParkedOrderID);
-	int i = this->api->ReqRemoveParkedOrder(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqRemoveParkedOrderAction(const dict &req, int reqid)
-{
-	CThostFtdcRemoveParkedOrderActionField myreq = CThostFtdcRemoveParkedOrderActionField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "ParkedOrderActionID", myreq.ParkedOrderActionID);
-	int i = this->api->ReqRemoveParkedOrderAction(&myreq, reqid);
 	return i;
 };
 
@@ -7695,23 +7408,6 @@ int TdApi::reqOptionSelfCloseAction(const dict &req, int reqid)
 	return i;
 };
 
-int TdApi::reqTransFund(const dict &req, int reqid)
-{
-	CThostFtdcTransFundField myreq = CThostFtdcTransFundField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "UserID", myreq.UserID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "InvestUnitID", myreq.InvestUnitID);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "DepositKernel", myreq.DepositKernel);
-	getString(req, "IncomingKernel", myreq.IncomingKernel);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	getDouble(req, "Amount", &myreq.Amount);
-	int i = this->api->ReqTransFund(&myreq, reqid);
-	return i;
-};
-
 int TdApi::reqQryOrder(const dict &req, int reqid)
 {
 	CThostFtdcQryOrderField myreq = CThostFtdcQryOrderField();
@@ -7865,17 +7561,6 @@ int TdApi::reqQryOptionSelfClose(const dict &req, int reqid)
 	return i;
 };
 
-int TdApi::reqQrySettlementInfo(const dict &req, int reqid)
-{
-	CThostFtdcQrySettlementInfoField myreq = CThostFtdcQrySettlementInfoField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "TradingDay", myreq.TradingDay);
-	int i = this->api->ReqQrySettlementInfo(&myreq, reqid);
-	return i;
-};
-
 int TdApi::reqQryInstrumentStatus(const dict &req, int reqid)
 {
 	CThostFtdcQryInstrumentStatusField myreq = CThostFtdcQryInstrumentStatusField();
@@ -7883,91 +7568,6 @@ int TdApi::reqQryInstrumentStatus(const dict &req, int reqid)
 	getString(req, "ExchangeID", myreq.ExchangeID);
 	getString(req, "ExchangeInstID", myreq.ExchangeInstID);
 	int i = this->api->ReqQryInstrumentStatus(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryTransferBank(const dict &req, int reqid)
-{
-	CThostFtdcQryTransferBankField myreq = CThostFtdcQryTransferBankField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BankID", myreq.BankID);
-	getString(req, "BankBrchID", myreq.BankBrchID);
-	int i = this->api->ReqQryTransferBank(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryInvestorPositionDetail(const dict &req, int reqid)
-{
-	CThostFtdcQryInvestorPositionDetailField myreq = CThostFtdcQryInvestorPositionDetailField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "InstrumentID", myreq.InstrumentID);
-	int i = this->api->ReqQryInvestorPositionDetail(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryNotice(const dict &req, int reqid)
-{
-	CThostFtdcQryNoticeField myreq = CThostFtdcQryNoticeField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	int i = this->api->ReqQryNotice(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQrySettlementInfoConfirm(const dict &req, int reqid)
-{
-	CThostFtdcQrySettlementInfoConfirmField myreq = CThostFtdcQrySettlementInfoConfirmField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	int i = this->api->ReqQrySettlementInfoConfirm(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryInvestorPositionCombineDetail(const dict &req, int reqid)
-{
-	CThostFtdcQryInvestorPositionCombineDetailField myreq = CThostFtdcQryInvestorPositionCombineDetailField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "CombInstrumentID", myreq.CombInstrumentID);
-	int i = this->api->ReqQryInvestorPositionCombineDetail(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryCFMMCTradingAccountKey(const dict &req, int reqid)
-{
-	CThostFtdcQryCFMMCTradingAccountKeyField myreq = CThostFtdcQryCFMMCTradingAccountKeyField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	int i = this->api->ReqQryCFMMCTradingAccountKey(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryEWarrantOffset(const dict &req, int reqid)
-{
-	CThostFtdcQryEWarrantOffsetField myreq = CThostFtdcQryEWarrantOffsetField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "ExchangeID", myreq.ExchangeID);
-	getString(req, "InstrumentID", myreq.InstrumentID);
-	int i = this->api->ReqQryEWarrantOffset(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryInvestorProductGroupMargin(const dict &req, int reqid)
-{
-	CThostFtdcQryInvestorProductGroupMarginField myreq = CThostFtdcQryInvestorProductGroupMarginField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "ProductGroupID", myreq.ProductGroupID);
-	getChar(req, "HedgeFlag", &myreq.HedgeFlag);
-	int i = this->api->ReqQryInvestorProductGroupMargin(&myreq, reqid);
 	return i;
 };
 
@@ -7990,29 +7590,6 @@ int TdApi::reqQryExchangeMarginRateAdjust(const dict &req, int reqid)
 	getString(req, "InstrumentID", myreq.InstrumentID);
 	getChar(req, "HedgeFlag", &myreq.HedgeFlag);
 	int i = this->api->ReqQryExchangeMarginRateAdjust(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryExchangeRate(const dict &req, int reqid)
-{
-	CThostFtdcQryExchangeRateField myreq = CThostFtdcQryExchangeRateField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "FromCurrencyID", myreq.FromCurrencyID);
-	getString(req, "ToCurrencyID", myreq.ToCurrencyID);
-	int i = this->api->ReqQryExchangeRate(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQrySecAgentACIDMap(const dict &req, int reqid)
-{
-	CThostFtdcQrySecAgentACIDMapField myreq = CThostFtdcQrySecAgentACIDMapField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "UserID", myreq.UserID);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	int i = this->api->ReqQrySecAgentACIDMap(&myreq, reqid);
 	return i;
 };
 
@@ -8084,245 +7661,6 @@ int TdApi::reqQryQuote(const dict &req, int reqid)
 	int i = this->api->ReqQryQuote(&myreq, reqid);
 	return i;
 };
-
-int TdApi::reqQryTransferSerial(const dict &req, int reqid)
-{
-	CThostFtdcQryTransferSerialField myreq = CThostFtdcQryTransferSerialField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "BankID", myreq.BankID);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	int i = this->api->ReqQryTransferSerial(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryAccountregister(const dict &req, int reqid)
-{
-	CThostFtdcQryAccountregisterField myreq = CThostFtdcQryAccountregisterField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "BankID", myreq.BankID);
-	getString(req, "BankBranchID", myreq.BankBranchID);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	int i = this->api->ReqQryAccountregister(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryContractBank(const dict &req, int reqid)
-{
-	CThostFtdcQryContractBankField myreq = CThostFtdcQryContractBankField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "BankID", myreq.BankID);
-	getString(req, "BankBrchID", myreq.BankBrchID);
-	int i = this->api->ReqQryContractBank(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryParkedOrder(const dict &req, int reqid)
-{
-	CThostFtdcQryParkedOrderField myreq = CThostFtdcQryParkedOrderField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "InstrumentID", myreq.InstrumentID);
-	getString(req, "ExchangeID", myreq.ExchangeID);
-	int i = this->api->ReqQryParkedOrder(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryParkedOrderAction(const dict &req, int reqid)
-{
-	CThostFtdcQryParkedOrderActionField myreq = CThostFtdcQryParkedOrderActionField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "InstrumentID", myreq.InstrumentID);
-	getString(req, "ExchangeID", myreq.ExchangeID);
-	int i = this->api->ReqQryParkedOrderAction(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryTradingNotice(const dict &req, int reqid)
-{
-	CThostFtdcQryTradingNoticeField myreq = CThostFtdcQryTradingNoticeField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	int i = this->api->ReqQryTradingNotice(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryBrokerTradingParams(const dict &req, int reqid)
-{
-	CThostFtdcQryBrokerTradingParamsField myreq = CThostFtdcQryBrokerTradingParamsField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	int i = this->api->ReqQryBrokerTradingParams(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQryBrokerTradingAlgos(const dict &req, int reqid)
-{
-	CThostFtdcQryBrokerTradingAlgosField myreq = CThostFtdcQryBrokerTradingAlgosField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "ExchangeID", myreq.ExchangeID);
-	getString(req, "InstrumentID", myreq.InstrumentID);
-	int i = this->api->ReqQryBrokerTradingAlgos(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqFromBankToFutureByFuture(const dict &req, int reqid)
-{
-	CThostFtdcReqTransferField myreq = CThostFtdcReqTransferField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "TradeCode", myreq.TradeCode);
-	getString(req, "BankID", myreq.BankID);
-	getString(req, "BankBranchID", myreq.BankBranchID);
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "BrokerBranchID", myreq.BrokerBranchID);
-	getString(req, "TradeDate", myreq.TradeDate);
-	getString(req, "TradeTime", myreq.TradeTime);
-	getString(req, "BankSerial", myreq.BankSerial);
-	getString(req, "TradingDay", myreq.TradingDay);
-	getInt(req, "PlateSerial", &myreq.PlateSerial);
-	getChar(req, "LastFragment", &myreq.LastFragment);
-	getInt(req, "SessionID", &myreq.SessionID);
-	getString(req, "CustomerName", myreq.CustomerName);
-	getChar(req, "IdCardType", &myreq.IdCardType);
-	getString(req, "IdentifiedCardNo", myreq.IdentifiedCardNo);
-	getChar(req, "CustType", &myreq.CustType);
-	getString(req, "BankAccount", myreq.BankAccount);
-	getString(req, "BankPassWord", myreq.BankPassWord);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "Password", myreq.Password);
-	getInt(req, "InstallID", &myreq.InstallID);
-	getInt(req, "FutureSerial", &myreq.FutureSerial);
-	getString(req, "UserID", myreq.UserID);
-	getChar(req, "VerifyCertNoFlag", &myreq.VerifyCertNoFlag);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	getDouble(req, "TradeAmount", &myreq.TradeAmount);
-	getDouble(req, "FutureFetchAmount", &myreq.FutureFetchAmount);
-	getChar(req, "FeePayFlag", &myreq.FeePayFlag);
-	getDouble(req, "CustFee", &myreq.CustFee);
-	getDouble(req, "BrokerFee", &myreq.BrokerFee);
-	getString(req, "Message", myreq.Message);
-	getString(req, "Digest", myreq.Digest);
-	getChar(req, "BankAccType", &myreq.BankAccType);
-	getString(req, "DeviceID", myreq.DeviceID);
-	getChar(req, "BankSecuAccType", &myreq.BankSecuAccType);
-	getString(req, "BrokerIDByBank", myreq.BrokerIDByBank);
-	getString(req, "BankSecuAcc", myreq.BankSecuAcc);
-	getChar(req, "BankPwdFlag", &myreq.BankPwdFlag);
-	getChar(req, "SecuPwdFlag", &myreq.SecuPwdFlag);
-	getString(req, "OperNo", myreq.OperNo);
-	getInt(req, "RequestID", &myreq.RequestID);
-	getInt(req, "TID", &myreq.TID);
-	getChar(req, "TransferStatus", &myreq.TransferStatus);
-	int i = this->api->ReqFromBankToFutureByFuture(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqFromFutureToBankByFuture(const dict &req, int reqid)
-{
-	CThostFtdcReqTransferField myreq = CThostFtdcReqTransferField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "TradeCode", myreq.TradeCode);
-	getString(req, "BankID", myreq.BankID);
-	getString(req, "BankBranchID", myreq.BankBranchID);
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "BrokerBranchID", myreq.BrokerBranchID);
-	getString(req, "TradeDate", myreq.TradeDate);
-	getString(req, "TradeTime", myreq.TradeTime);
-	getString(req, "BankSerial", myreq.BankSerial);
-	getString(req, "TradingDay", myreq.TradingDay);
-	getInt(req, "PlateSerial", &myreq.PlateSerial);
-	getChar(req, "LastFragment", &myreq.LastFragment);
-	getInt(req, "SessionID", &myreq.SessionID);
-	getString(req, "CustomerName", myreq.CustomerName);
-	getChar(req, "IdCardType", &myreq.IdCardType);
-	getString(req, "IdentifiedCardNo", myreq.IdentifiedCardNo);
-	getChar(req, "CustType", &myreq.CustType);
-	getString(req, "BankAccount", myreq.BankAccount);
-	getString(req, "BankPassWord", myreq.BankPassWord);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "Password", myreq.Password);
-	getInt(req, "InstallID", &myreq.InstallID);
-	getInt(req, "FutureSerial", &myreq.FutureSerial);
-	getString(req, "UserID", myreq.UserID);
-	getChar(req, "VerifyCertNoFlag", &myreq.VerifyCertNoFlag);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	getDouble(req, "TradeAmount", &myreq.TradeAmount);
-	getDouble(req, "FutureFetchAmount", &myreq.FutureFetchAmount);
-	getChar(req, "FeePayFlag", &myreq.FeePayFlag);
-	getDouble(req, "CustFee", &myreq.CustFee);
-	getDouble(req, "BrokerFee", &myreq.BrokerFee);
-	getString(req, "Message", myreq.Message);
-	getString(req, "Digest", myreq.Digest);
-	getChar(req, "BankAccType", &myreq.BankAccType);
-	getString(req, "DeviceID", myreq.DeviceID);
-	getChar(req, "BankSecuAccType", &myreq.BankSecuAccType);
-	getString(req, "BrokerIDByBank", myreq.BrokerIDByBank);
-	getString(req, "BankSecuAcc", myreq.BankSecuAcc);
-	getChar(req, "BankPwdFlag", &myreq.BankPwdFlag);
-	getChar(req, "SecuPwdFlag", &myreq.SecuPwdFlag);
-	getString(req, "OperNo", myreq.OperNo);
-	getInt(req, "RequestID", &myreq.RequestID);
-	getInt(req, "TID", &myreq.TID);
-	getChar(req, "TransferStatus", &myreq.TransferStatus);
-	int i = this->api->ReqFromFutureToBankByFuture(&myreq, reqid);
-	return i;
-};
-
-int TdApi::reqQueryBankAccountMoneyByFuture(const dict &req, int reqid)
-{
-	CThostFtdcReqQueryAccountField myreq = CThostFtdcReqQueryAccountField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "TradeCode", myreq.TradeCode);
-	getString(req, "BankID", myreq.BankID);
-	getString(req, "BankBranchID", myreq.BankBranchID);
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "BrokerBranchID", myreq.BrokerBranchID);
-	getString(req, "TradeDate", myreq.TradeDate);
-	getString(req, "TradeTime", myreq.TradeTime);
-	getString(req, "BankSerial", myreq.BankSerial);
-	getString(req, "TradingDay", myreq.TradingDay);
-	getInt(req, "PlateSerial", &myreq.PlateSerial);
-	getChar(req, "LastFragment", &myreq.LastFragment);
-	getInt(req, "SessionID", &myreq.SessionID);
-	getString(req, "CustomerName", myreq.CustomerName);
-	getChar(req, "IdCardType", &myreq.IdCardType);
-	getString(req, "IdentifiedCardNo", myreq.IdentifiedCardNo);
-	getChar(req, "CustType", &myreq.CustType);
-	getString(req, "BankAccount", myreq.BankAccount);
-	getString(req, "BankPassWord", myreq.BankPassWord);
-	getString(req, "AccountID", myreq.AccountID);
-	getString(req, "Password", myreq.Password);
-	getInt(req, "FutureSerial", &myreq.FutureSerial);
-	getInt(req, "InstallID", &myreq.InstallID);
-	getString(req, "UserID", myreq.UserID);
-	getChar(req, "VerifyCertNoFlag", &myreq.VerifyCertNoFlag);
-	getString(req, "CurrencyID", myreq.CurrencyID);
-	getString(req, "Digest", myreq.Digest);
-	getChar(req, "BankAccType", &myreq.BankAccType);
-	getString(req, "DeviceID", myreq.DeviceID);
-	getChar(req, "BankSecuAccType", &myreq.BankSecuAccType);
-	getString(req, "BrokerIDByBank", myreq.BrokerIDByBank);
-	getString(req, "BankSecuAcc", myreq.BankSecuAcc);
-	getChar(req, "BankPwdFlag", &myreq.BankPwdFlag);
-	getChar(req, "SecuPwdFlag", &myreq.SecuPwdFlag);
-	getString(req, "OperNo", myreq.OperNo);
-	getInt(req, "RequestID", &myreq.RequestID);
-	getInt(req, "TID", &myreq.TID);
-	int i = this->api->ReqQueryBankAccountMoneyByFuture(&myreq, reqid);
-	return i;
-};
-
 
 ///-------------------------------------------------------------------------------------
 ///Boost.Python·â×°
@@ -8813,18 +8151,6 @@ public:
 		}
 	};
 
-	void onRspQryInvestorPositionDetail(const dict &data, const dict &error, int reqid, bool last) override
-	{
-		try
-		{
-			PYBIND11_OVERLOAD(void, TdApi, onRspQryInvestorPositionDetail, data, error, reqid, last);
-		}
-		catch (const error_already_set &e)
-		{
-			cout << e.what() << endl;
-		}
-	};
-
 	void onRspQryNotice(const dict &data, const dict &error, int reqid, bool last) override
 	{
 		try
@@ -8842,18 +8168,6 @@ public:
 		try
 		{
 			PYBIND11_OVERLOAD(void, TdApi, onRspQrySettlementInfoConfirm, data, error, reqid, last);
-		}
-		catch (const error_already_set &e)
-		{
-			cout << e.what() << endl;
-		}
-	};
-
-	void onRspQryInvestorPositionCombineDetail(const dict &data, const dict &error, int reqid, bool last) override
-	{
-		try
-		{
-			PYBIND11_OVERLOAD(void, TdApi, onRspQryInvestorPositionCombineDetail, data, error, reqid, last);
 		}
 		catch (const error_already_set &e)
 		{
@@ -9638,16 +8952,8 @@ PYBIND11_MODULE(vnminitd, m)
 		.def("reqUserLogin", &TdApi::reqUserLogin)
 		.def("reqUserLoginEncrypt", &TdApi::reqUserLoginEncrypt)
 		.def("reqUserLogout", &TdApi::reqUserLogout)
-		.def("reqUserPasswordUpdate", &TdApi::reqUserPasswordUpdate)
-		.def("reqTradingAccountPasswordUpdate", &TdApi::reqTradingAccountPasswordUpdate)
 		.def("reqOrderInsert", &TdApi::reqOrderInsert)
-		.def("reqParkedOrderInsert", &TdApi::reqParkedOrderInsert)
-		.def("reqParkedOrderAction", &TdApi::reqParkedOrderAction)
 		.def("reqOrderAction", &TdApi::reqOrderAction)
-		.def("reqQueryMaxOrderVolume", &TdApi::reqQueryMaxOrderVolume)
-		.def("reqSettlementInfoConfirm", &TdApi::reqSettlementInfoConfirm)
-		.def("reqRemoveParkedOrder", &TdApi::reqRemoveParkedOrder)
-		.def("reqRemoveParkedOrderAction", &TdApi::reqRemoveParkedOrderAction)
 		.def("reqExecOrderInsert", &TdApi::reqExecOrderInsert)
 		.def("reqExecOrderAction", &TdApi::reqExecOrderAction)
 		.def("reqForQuoteInsert", &TdApi::reqForQuoteInsert)
@@ -9656,7 +8962,6 @@ PYBIND11_MODULE(vnminitd, m)
 		.def("reqBatchOrderAction", &TdApi::reqBatchOrderAction)
 		.def("reqOptionSelfCloseInsert", &TdApi::reqOptionSelfCloseInsert)
 		.def("reqOptionSelfCloseAction", &TdApi::reqOptionSelfCloseAction)
-		.def("reqTransFund", &TdApi::reqTransFund)
 		.def("reqQryOrder", &TdApi::reqQryOrder)
 		.def("reqQryTrade", &TdApi::reqQryTrade)
 		.def("reqQryInvestorPosition", &TdApi::reqQryInvestorPosition)
@@ -9670,36 +8975,14 @@ PYBIND11_MODULE(vnminitd, m)
 		.def("reqQryInstrument", &TdApi::reqQryInstrument)
 		.def("reqQryDepthMarketData", &TdApi::reqQryDepthMarketData)
 		.def("reqQryOptionSelfClose", &TdApi::reqQryOptionSelfClose)
-		.def("reqQrySettlementInfo", &TdApi::reqQrySettlementInfo)
 		.def("reqQryInstrumentStatus", &TdApi::reqQryInstrumentStatus)
-		.def("reqQryTransferBank", &TdApi::reqQryTransferBank)
-		.def("reqQryInvestorPositionDetail", &TdApi::reqQryInvestorPositionDetail)
-		.def("reqQryNotice", &TdApi::reqQryNotice)
-		.def("reqQrySettlementInfoConfirm", &TdApi::reqQrySettlementInfoConfirm)
-		.def("reqQryInvestorPositionCombineDetail", &TdApi::reqQryInvestorPositionCombineDetail)
-		.def("reqQryCFMMCTradingAccountKey", &TdApi::reqQryCFMMCTradingAccountKey)
-		.def("reqQryEWarrantOffset", &TdApi::reqQryEWarrantOffset)
-		.def("reqQryInvestorProductGroupMargin", &TdApi::reqQryInvestorProductGroupMargin)
 		.def("reqQryExchangeMarginRate", &TdApi::reqQryExchangeMarginRate)
 		.def("reqQryExchangeMarginRateAdjust", &TdApi::reqQryExchangeMarginRateAdjust)
-		.def("reqQryExchangeRate", &TdApi::reqQryExchangeRate)
-		.def("reqQrySecAgentACIDMap", &TdApi::reqQrySecAgentACIDMap)
 		.def("reqQryOptionInstrTradeCost", &TdApi::reqQryOptionInstrTradeCost)
 		.def("reqQryOptionInstrCommRate", &TdApi::reqQryOptionInstrCommRate)
 		.def("reqQryExecOrder", &TdApi::reqQryExecOrder)
 		.def("reqQryForQuote", &TdApi::reqQryForQuote)
 		.def("reqQryQuote", &TdApi::reqQryQuote)
-		.def("reqQryTransferSerial", &TdApi::reqQryTransferSerial)
-		.def("reqQryAccountregister", &TdApi::reqQryAccountregister)
-		.def("reqQryContractBank", &TdApi::reqQryContractBank)
-		.def("reqQryParkedOrder", &TdApi::reqQryParkedOrder)
-		.def("reqQryParkedOrderAction", &TdApi::reqQryParkedOrderAction)
-		.def("reqQryTradingNotice", &TdApi::reqQryTradingNotice)
-		.def("reqQryBrokerTradingParams", &TdApi::reqQryBrokerTradingParams)
-		.def("reqQryBrokerTradingAlgos", &TdApi::reqQryBrokerTradingAlgos)
-		.def("reqFromBankToFutureByFuture", &TdApi::reqFromBankToFutureByFuture)
-		.def("reqFromFutureToBankByFuture", &TdApi::reqFromFutureToBankByFuture)
-		.def("reqQueryBankAccountMoneyByFuture", &TdApi::reqQueryBankAccountMoneyByFuture)
 
 		.def("onFrontConnected", &TdApi::onFrontConnected)
 		.def("onFrontDisconnected", &TdApi::onFrontDisconnected)
@@ -9741,10 +9024,8 @@ PYBIND11_MODULE(vnminitd, m)
 		.def("onRspQrySettlementInfo", &TdApi::onRspQrySettlementInfo)
 		.def("onRspQryInstrumentStatus", &TdApi::onRspQryInstrumentStatus)
 		.def("onRspQryTransferBank", &TdApi::onRspQryTransferBank)
-		.def("onRspQryInvestorPositionDetail", &TdApi::onRspQryInvestorPositionDetail)
 		.def("onRspQryNotice", &TdApi::onRspQryNotice)
 		.def("onRspQrySettlementInfoConfirm", &TdApi::onRspQrySettlementInfoConfirm)
-		.def("onRspQryInvestorPositionCombineDetail", &TdApi::onRspQryInvestorPositionCombineDetail)
 		.def("onRspQryCFMMCTradingAccountKey", &TdApi::onRspQryCFMMCTradingAccountKey)
 		.def("onRspQryEWarrantOffset", &TdApi::onRspQryEWarrantOffset)
 		.def("onRspQryInvestorProductGroupMargin", &TdApi::onRspQryInvestorProductGroupMargin)
