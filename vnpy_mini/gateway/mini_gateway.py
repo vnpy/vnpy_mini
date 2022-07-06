@@ -2,8 +2,32 @@ from pathlib import Path
 import sys
 import pytz
 from datetime import datetime
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
+
 from vnpy.event import EventEngine
+from vnpy.trader.constant import (
+    Direction,
+    Offset,
+    Exchange,
+    OrderType,
+    Product,
+    Status,
+    OptionType
+)
+from vnpy.trader.gateway import BaseGateway
+from vnpy.trader.object import (
+    TickData,
+    OrderData,
+    TradeData,
+    PositionData,
+    AccountData,
+    ContractData,
+    OrderRequest,
+    CancelRequest,
+    SubscribeRequest,
+)
+from vnpy.trader.utility import get_folder_path
+from vnpy.trader.event import EVENT_TIMER
 
 from ..api import (
     MdApi,
@@ -40,29 +64,6 @@ from ..api import (
     THOST_FTDC_VC_CV,
     THOST_FTDC_AF_Delete
 )
-from vnpy.trader.constant import (
-    Direction,
-    Offset,
-    Exchange,
-    OrderType,
-    Product,
-    Status,
-    OptionType
-)
-from vnpy.trader.gateway import BaseGateway
-from vnpy.trader.object import (
-    TickData,
-    OrderData,
-    TradeData,
-    PositionData,
-    AccountData,
-    ContractData,
-    OrderRequest,
-    CancelRequest,
-    SubscribeRequest,
-)
-from vnpy.trader.utility import get_folder_path
-from vnpy.trader.event import EVENT_TIMER
 
 
 # 委托状态映射
@@ -136,7 +137,7 @@ symbol_contract_map: Dict[str, ContractData] = {}
 
 class MiniGateway(BaseGateway):
     """
-    vn.py用于对接CTP Mini柜台的交易接口。
+    VeighNa用于对接CTP Mini柜台的交易接口。
     """
 
     default_name: str = "MINI"
@@ -209,7 +210,7 @@ class MiniGateway(BaseGateway):
         """输出错误信息日志"""
         error_id: int = error["ErrorID"]
         error_msg: str = error["ErrorMsg"]
-        msg = f"{msg}，代码：{error_id}，信息：{error_msg}"
+        msg: str = f"{msg}，代码：{error_id}，信息：{error_msg}"
         self.write_log(msg)
 
     def process_timer_event(self, event) -> None:
@@ -246,7 +247,7 @@ class MiniMdApi(MdApi):
 
         self.connect_status: bool = False
         self.login_status: bool = False
-        self.subscribed: Set = set()
+        self.subscribed: set = set()
 
         self.userid: str = ""
         self.password: str = ""
@@ -498,16 +499,6 @@ class MiniTdApi(TdApi):
         """委托撤单失败回报"""
         self.gateway.write_error("交易撤单失败", error)
 
-    def onRspQueryMaxOrderVolume(self, data: dict, error: dict, reqid: int, last: bool) -> None:
-        """确认结算单回报"""
-        pass
-
-    def onRspSettlementInfoConfirm(self, data: dict, error: dict, reqid: int, last: bool):
-        """
-        Callback of settlment info confimation.
-        """
-        pass
-
     def onRspQryInvestorPosition(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """持仓查询回报"""
         if not data:
@@ -526,7 +517,7 @@ class MiniTdApi(TdApi):
             key: str = f"{data['InstrumentID'], data['PosiDirection']}"
             position: PositionData = self.positions.get(key, None)
             if not position:
-                position: PositionData = PositionData(
+                position = PositionData(
                     symbol=data["InstrumentID"],
                     exchange=contract.exchange,
                     direction=DIRECTION_MINI2VT[data["PosiDirection"]],
@@ -565,7 +556,6 @@ class MiniTdApi(TdApi):
 
     def onRspQryTradingAccount(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """资金查询回报"""
-
         if "AccountID" not in data:
             return
 
@@ -630,10 +620,10 @@ class MiniTdApi(TdApi):
             self.order_data.append(data)
             return
 
-        insert_time = data.get("InsertTime", None)
+        insert_time: str = data.get("InsertTime", None)
         if not insert_time:
             if STATUS_MINI2VT[data["OrderStatus"]] == Status.CANCELLED:
-                time = datetime.now().strftime("%H:%M:%S")
+                time: str = datetime.now().strftime("%H:%M:%S")
                 timestamp: str = f"{self.trading_date} {time}"
             else:
                 return
@@ -651,7 +641,7 @@ class MiniTdApi(TdApi):
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S")
         dt: datetime = CHINA_TZ.localize(dt)
 
-        tp = (data["OrderPriceType"], data["TimeCondition"], data["VolumeCondition"])
+        tp: tuple = (data["OrderPriceType"], data["TimeCondition"], data["VolumeCondition"])
 
         order: OrderData = OrderData(
             symbol=symbol,
@@ -769,7 +759,7 @@ class MiniTdApi(TdApi):
 
         self.order_ref += 1
 
-        tp = ORDERTYPE_VT2MINI[req.type]
+        tp: tuple = ORDERTYPE_VT2MINI[req.type]
         price_type, time_condition, volume_condition = tp
 
         mini_req: dict = {
