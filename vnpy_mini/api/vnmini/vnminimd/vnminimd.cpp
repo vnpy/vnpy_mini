@@ -210,7 +210,6 @@ void MdApi::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp)
 	this->task_queue.push(task);
 };
 
-
 ///-------------------------------------------------------------------------------------
 ///工作线程从队列中取出数据，转化为python对象后，进行推送
 ///-------------------------------------------------------------------------------------
@@ -532,6 +531,8 @@ void MdApi::processRtnDepthMarketData(Task *task)
 		data["AskVolume5"] = task_data->AskVolume5;
 		data["AveragePrice"] = task_data->AveragePrice;
 		data["ActionDay"] = toUtf(task_data->ActionDay);
+		data["BandingUpperPrice"] = task_data->BandingUpperPrice;
+		data["BandingLowerPrice"] = task_data->BandingLowerPrice;
 		delete task_data;
 	}
 	this->onRtnDepthMarketData(data);
@@ -571,7 +572,6 @@ void MdApi::processRtnForQuoteRsp(Task *task)
 	}
 	this->onRtnForQuoteRsp(data);
 };
-
 
 ///-------------------------------------------------------------------------------------
 ///主动函数
@@ -636,7 +636,7 @@ int MdApi::subscribeMarketData(string instrumentID)
 int MdApi::unSubscribeMarketData(string instrumentID)
 {
 	char* buffer = (char*)instrumentID.c_str();
-	char* myreq[1] = { buffer };;
+	char* myreq[1] = { buffer };
 	int i = this->api->UnSubscribeMarketData(myreq, 1);
 	return i;
 };
@@ -652,7 +652,7 @@ int MdApi::subscribeForQuoteRsp(string instrumentID)
 int MdApi::unSubscribeForQuoteRsp(string instrumentID)
 {
 	char* buffer = (char*)instrumentID.c_str();
-	char* myreq[1] = { buffer };;
+	char* myreq[1] = { buffer };
 	int i = this->api->UnSubscribeForQuoteRsp(myreq, 1);
 	return i;
 };
