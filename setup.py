@@ -6,9 +6,7 @@ from setuptools import Extension, setup
 def get_ext_modules() -> list:
     """
     获取三方模块
-
-    Linux需要编译封装接口
-    Windows直接使用预编译的pyd即可
+    Linux和Windows需要编译封装接口
     Mac由于缺乏二进制库支持无法使用
     """
     if platform.system() == "Linux":
@@ -20,10 +18,14 @@ def get_ext_modules() -> list:
         ]
         extra_link_args = ["-lstdc++"]
         runtime_library_dirs = ["$ORIGIN"]
-    else:
+
+    elif platform.system() == "Windows":
         extra_compile_flags = ["-O2", "-MT"]
         extra_link_args = []
         runtime_library_dirs = []
+
+    else:
+        return []
 
     vnminimd = Extension(
         "vnpy_mini.api.vnminimd",
