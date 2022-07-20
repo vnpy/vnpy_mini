@@ -614,6 +614,12 @@ int MdApi::exit()
 	return 1;
 };
 
+string MdApi::getApiVersion()
+{
+	string v = this->api->GetApiVersion();
+	return v;
+};
+
 string MdApi::getTradingDay()
 {
 	string day = this->api->GetTradingDay();
@@ -863,6 +869,7 @@ PYBIND11_MODULE(vnminimd, m)
 		.def("init", &MdApi::init)
 		.def("join", &MdApi::join)
 		.def("exit", &MdApi::exit)
+		.def("getApiVersion", &MdApi::getApiVersion)
 		.def("getTradingDay", &MdApi::getTradingDay)
 		.def("registerFront", &MdApi::registerFront)
 		.def("subscribeMarketData", &MdApi::subscribeMarketData)
