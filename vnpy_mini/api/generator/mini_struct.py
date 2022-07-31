@@ -4703,4 +4703,3 @@ CThostFtdcUserSystemInfoField = {
     "ClientLoginTime": "string",
     "ClientAppID": "string",
 }
-
