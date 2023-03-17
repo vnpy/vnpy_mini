@@ -73,8 +73,12 @@ class StructGenerator:
         words = line.split(" ")
         words = [word for word in words if word]
 
-        py_type = self.typedefs[words[0]]
-        name = words[1]
+        if words[0] == "unsigned":
+            py_type = "unsigned int"
+            name = words[2]
+        else:
+            py_type = self.typedefs[words[0]]
+            name = words[1]
 
         new_line = f"    \"{name}\": \"{py_type}\",\n"
         self.f_struct.write(new_line)

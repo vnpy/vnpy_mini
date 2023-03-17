@@ -16,6 +16,18 @@ case ONHEARTBEATWARNING:
 	break;
 }
 
+case ONRSPSUBSCRIBEFLOWCTRLWARNING:
+{
+	this->processRspSubscribeFlowCtrlWarning(&task);
+	break;
+}
+
+case ONRSPUNSUBSCRIBEFLOWCTRLWARNING:
+{
+	this->processRspUnSubscribeFlowCtrlWarning(&task);
+	break;
+}
+
 case ONRSPAUTHENTICATE:
 {
 	this->processRspAuthenticate(&task);
@@ -43,6 +55,12 @@ case ONRSPORDERINSERT:
 case ONRSPORDERACTION:
 {
 	this->processRspOrderAction(&task);
+	break;
+}
+
+case ONRSPMKBATCHORDERACTION:
+{
+	this->processRspMKBatchOrderAction(&task);
 	break;
 }
 
@@ -202,12 +220,6 @@ case ONRSPQRYINVESTORPOSITIONDETAIL:
 	break;
 }
 
-case ONRSPQRYINVESTORPOSITIONCOMBINEDETAIL:
-{
-	this->processRspQryInvestorPositionCombineDetail(&task);
-	break;
-}
-
 case ONRSPQRYEXCHANGEMARGINRATE:
 {
 	this->processRspQryExchangeMarginRate(&task);
@@ -247,6 +259,18 @@ case ONRSPQRYFORQUOTE:
 case ONRSPQRYFORQUOTEPARAM:
 {
 	this->processRspQryForQuoteParam(&task);
+	break;
+}
+
+case ONRSPQRYINVESTORPRODSPBMDETAIL:
+{
+	this->processRspQryInvestorProdSPBMDetail(&task);
+	break;
+}
+
+case ONRSPQRYTRADEROFFER:
+{
+	this->processRspQryTraderOffer(&task);
 	break;
 }
 
@@ -382,3 +406,8 @@ case ONRSPQRYINSTRUMENTORDERCOMMRATE:
 	break;
 }
 
+case ONRTNFLOWCTRLWARNING:
+{
+	this->processRtnFlowCtrlWarning(&task);
+	break;
+}

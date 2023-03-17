@@ -122,6 +122,32 @@ int TdApi::reqOrderAction(const dict &req, int reqid)
 	return i;
 };
 
+int TdApi::reqMKBatchOrderAction(const dict &req, int reqid)
+{
+	CThostFtdcMKInputOrderActionField myreq = CThostFtdcMKInputOrderActionField();
+	memset(&myreq, 0, sizeof(myreq));
+	getString(req, "BrokerID", myreq.BrokerID);
+	getString(req, "InvestorID", myreq.InvestorID);
+	getInt(req, "OrderActionRef", &myreq.OrderActionRef);
+	getInt(req, "RequestID", &myreq.RequestID);
+	getInt(req, "FrontID", &myreq.FrontID);
+	getInt(req, "SessionID", &myreq.SessionID);
+	getString(req, "ExchangeID", myreq.ExchangeID);
+	getChar(req, "ActionFlag", &myreq.ActionFlag);
+	getChar(req, "ActionMode", &myreq.ActionMode);
+	getString(req, "LowerLimit", myreq.LowerLimit);
+	getString(req, "UpperLimit", myreq.UpperLimit);
+	getString(req, "UserID", myreq.UserID);
+	getString(req, "ProductID", myreq.ProductID);
+	getString(req, "InstrumentID", myreq.InstrumentID);
+	getChar(req, "OrderStatus", &myreq.OrderStatus);
+	getString(req, "InvestUnitID", myreq.InvestUnitID);
+	getString(req, "IPAddress", myreq.IPAddress);
+	getString(req, "MacAddress", myreq.MacAddress);
+	int i = this->api->ReqMKBatchOrderAction(&myreq, reqid);
+	return i;
+};
+
 int TdApi::reqExecOrderInsert(const dict &req, int reqid)
 {
 	CThostFtdcInputExecOrderField myreq = CThostFtdcInputExecOrderField();
@@ -547,17 +573,6 @@ int TdApi::reqQryInvestorPositionDetail(const dict &req, int reqid)
 	return i;
 };
 
-int TdApi::reqQryInvestorPositionCombineDetail(const dict &req, int reqid)
-{
-	CThostFtdcQryInvestorPositionCombineDetailField myreq = CThostFtdcQryInvestorPositionCombineDetailField();
-	memset(&myreq, 0, sizeof(myreq));
-	getString(req, "BrokerID", myreq.BrokerID);
-	getString(req, "InvestorID", myreq.InvestorID);
-	getString(req, "CombInstrumentID", myreq.CombInstrumentID);
-	int i = this->api->ReqQryInvestorPositionCombineDetail(&myreq, reqid);
-	return i;
-};
-
 int TdApi::reqQryExchangeMarginRate(const dict &req, int reqid)
 {
 	CThostFtdcQryExchangeMarginRateField myreq = CThostFtdcQryExchangeMarginRateField();
@@ -672,3 +687,24 @@ int TdApi::reqQryForQuoteParam(const dict &req, int reqid)
 	return i;
 };
 
+int TdApi::reqQryTraderOffer(const dict &req, int reqid)
+{
+	CThostFtdcQryTraderOfferField myreq = CThostFtdcQryTraderOfferField();
+	memset(&myreq, 0, sizeof(myreq));
+	getString(req, "ExchangeID", myreq.ExchangeID);
+	getString(req, "TraderID", myreq.TraderID);
+	int i = this->api->ReqQryTraderOffer(&myreq, reqid);
+	return i;
+};
+
+int TdApi::reqQryInvestorProdSPBMDetail(const dict &req, int reqid)
+{
+	CThostFtdcQryInvestorProdSPBMDetailField myreq = CThostFtdcQryInvestorProdSPBMDetailField();
+	memset(&myreq, 0, sizeof(myreq));
+	getString(req, "ExchangeID", myreq.ExchangeID);
+	getString(req, "BrokerID", myreq.BrokerID);
+	getString(req, "InvestorID", myreq.InvestorID);
+	getString(req, "ProdFamilyCode", myreq.ProdFamilyCode);
+	int i = this->api->ReqQryInvestorProdSPBMDetail(&myreq, reqid);
+	return i;
+};

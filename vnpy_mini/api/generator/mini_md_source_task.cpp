@@ -200,4 +200,3 @@ void MdApi::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp)
 	}
 	this->task_queue.push(task);
 };
-

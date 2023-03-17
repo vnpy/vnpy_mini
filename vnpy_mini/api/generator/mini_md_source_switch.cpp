@@ -75,4 +75,3 @@ case ONRTNFORQUOTERSP:
 	this->processRtnForQuoteRsp(&task);
 	break;
 }
-

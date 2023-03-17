@@ -26,6 +26,14 @@
 #define TRADER_API_DLL_EXPORT 
 #endif
 
+// 查询应答错误码描述如下
+#define QRY_ERROR_NONE 0
+#define QRY_ERROR_INVALID_LOGIN -1
+#define QRY_ERROR_DUPLICATE_LOGIN 2
+#define QRY_ERROR_NOT_LOGIN_YET -3
+#define QRY_ERROR_NO_PRIVILEGE -4 	// 无此权限：可能是功能未开启
+#define QRY_ERROR_REQUEST -6		// 查询错误：查询过快，尚有未完成的查询任务
+
 class CThostFtdcTraderSpi
 {
 public:
@@ -34,17 +42,25 @@ public:
 	
 	///当客户端与交易后台通信连接断开时，该方法被调用。当发生这个情况后，API会自动重新连接，客户端可不做处理。
 	///@param nReason 错误原因
-	///        0x1001 网络读失败
-	///        0x1002 网络写失败
-	///        0x2001 接收心跳超时
-	///        0x2002 发送心跳失败
-	///        0x2003 收到错误报文
+	///        -3	关闭连接
+	///        -4	网络读失败
+	///        -5	网络写失败
+	///        -6	读订阅流水请求出错
+	///        -7	序列号错误
+	///        -8	读心跳出错
+	///        -9	错误的网络包大小
 	virtual void OnFrontDisconnected(int nReason){};
 		
 	///心跳超时警告。当长时间未收到报文时，该方法被调用。
 	///@param nTimeLapse 距离上次接收报文的时间
 	virtual void OnHeartBeatWarning(int nTimeLapse){};
 	
+	///订阅流控警告应答
+	virtual void OnRspSubscribeFlowCtrlWarning(CThostFtdcSpecificTraderField *pRspSubscribeTraderField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///取消订阅流控警告应答
+	virtual void OnRspUnSubscribeFlowCtrlWarning(CThostFtdcSpecificTraderField *pRspSubscribeTraderField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
 	///客户端认证响应
 	virtual void OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 	
@@ -60,6 +76,9 @@ public:
 
 	///报单操作请求响应
 	virtual void OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///做市商批量报单操作请求响应
+	virtual void OnRspMKBatchOrderAction(CThostFtdcMKInputOrderActionField *pMKInputOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
 	///执行宣告录入请求响应
 	virtual void OnRspExecOrderInsert(CThostFtdcInputExecOrderField *pInputExecOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
@@ -139,9 +158,6 @@ public:
 	///请求查询投资者持仓明细响应
 	virtual void OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-	///请求查询投资者持仓明细响应
-	virtual void OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPositionCombineDetailField *pInvestorPositionCombineDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
-
 	///请求查询交易所保证金率响应
 	virtual void OnRspQryExchangeMarginRate(CThostFtdcExchangeMarginRateField *pExchangeMarginRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
@@ -162,6 +178,12 @@ public:
 
 	///请求查询询价价差响应
 	virtual void OnRspQryForQuoteParam(CThostFtdcForQuoteParamField *pForQuoteParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///请求查询投资者SPBM品种明细响应
+	virtual void OnRspQryInvestorProdSPBMDetail(CThostFtdcInvestorProdSPBMDetailField *pInvestorProdSPBMDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///请求查询交易员报盘机响应
+	virtual void OnRspQryTraderOffer(CThostFtdcTraderOfferField *pTraderOffer, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
 	///请求查询报价响应
 	virtual void OnRspQryQuote(CThostFtdcQuoteField *pQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
@@ -229,6 +251,8 @@ public:
 	///请求查询申报费响应
 	virtual void OnRspQryInstrumentOrderCommRate(CThostFtdcInstrumentOrderCommRateField *pInstrumentOrderCommRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
+	///交易所席位流控警告
+	virtual void OnRtnFlowCtrlWarning(CThostFtdcFlowCtrlWarningField *pFlowCtrlWarning) {};
 };
 
 class TRADER_API_DLL_EXPORT CThostFtdcTraderApi
@@ -287,6 +311,14 @@ public:
 	///@remark 该方法要在Init方法前调用。若不调用则不会收到公共流的数据。
 	virtual void SubscribePublicTopic(THOST_TE_RESUME_TYPE nResumeType) = 0;
 
+	///订阅交易所流控警告
+	///@remark 该方法必须在登录成功之后调用。
+	virtual int SubscribeFlowCtrlWarning(char *ppTraderID[], int nCount) = 0;
+
+	///取消订阅交易所流控警告
+	///@remark 该方法必须在登录成功之后调用。
+	virtual int UnSubscribeFlowCtrlWarning(char *ppTraderID[], int nCount) = 0;
+
 	///客户端认证请求
 	virtual int ReqAuthenticate(CThostFtdcReqAuthenticateField *pReqAuthenticateField, int nRequestID) = 0 ;
 
@@ -304,6 +336,9 @@ public:
 
 	///报单操作请求
 	virtual int ReqOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction, int nRequestID) = 0;
+
+	///做市商批量报单操作请求
+	virtual int ReqMKBatchOrderAction(CThostFtdcMKInputOrderActionField *pMKInputOrderAction, int nRequestID) = 0;
 
 	///执行宣告录入请求
 	virtual int ReqExecOrderInsert(CThostFtdcInputExecOrderField *pInputExecOrder, int nRequestID) = 0;
@@ -387,10 +422,6 @@ public:
 	///持仓明细不再维护，请勿以查询结果为准
 	virtual int ReqQryInvestorPositionDetail(CThostFtdcQryInvestorPositionDetailField *pQryInvestorPositionDetail, int nRequestID) = 0;
 
-	///请求查询投资者组合持仓明细
-	///组合持仓明细不再维护，请勿以查询结果为准
-	virtual int ReqQryInvestorPositionCombineDetail(CThostFtdcQryInvestorPositionCombineDetailField *pQryInvestorPositionCombineDetail, int nRequestID) = 0;
-
 	///请求查询交易所保证金率
 	virtual int ReqQryExchangeMarginRate(CThostFtdcQryExchangeMarginRateField *pQryExchangeMarginRate, int nRequestID) = 0;
 
@@ -417,6 +448,13 @@ public:
 
 	///请求查询询价价差
 	virtual int ReqQryForQuoteParam(CThostFtdcQryForQuoteParamField *pQryForQuoteParam, int nRequestID) = 0;
+
+	///请求查询交易员报盘机
+	virtual int ReqQryTraderOffer(CThostFtdcQryTraderOfferField *pQryTraderOffer, int nRequestID) = 0;
+	
+	///请求查询投资者SPBM品种明细
+	virtual int ReqQryInvestorProdSPBMDetail(CThostFtdcQryInvestorProdSPBMDetailField *pQryInvestorProdSPBMDetail, int nRequestID) = 0;
+	
 
 protected:
 	~CThostFtdcTraderApi(){};

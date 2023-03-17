@@ -16,6 +16,50 @@ void TdApi::processHeartBeatWarning(Task *task)
 	this->onHeartBeatWarning(task->task_id);
 };
 
+void TdApi::processRspSubscribeFlowCtrlWarning(Task *task)
+{
+	gil_scoped_acquire acquire;
+	dict data;
+	if (task->task_data)
+	{
+		CThostFtdcSpecificTraderField *task_data = (CThostFtdcSpecificTraderField*)task->task_data;
+		data["TraderID"] = toUtf(task_data->TraderID);
+		delete task_data;
+	}
+	dict error;
+	if (task->task_error)
+	{
+		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
+		error["ErrorID"] = task_error->ErrorID;
+		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
+		delete task_error;
+	}
+	this->onRspSubscribeFlowCtrlWarning(data, error, task->task_id, task->task_last);
+};
+
+void TdApi::processRspUnSubscribeFlowCtrlWarning(Task *task)
+{
+	gil_scoped_acquire acquire;
+	dict data;
+	if (task->task_data)
+	{
+		CThostFtdcSpecificTraderField *task_data = (CThostFtdcSpecificTraderField*)task->task_data;
+		data["TraderID"] = toUtf(task_data->TraderID);
+		delete task_data;
+	}
+	dict error;
+	if (task->task_error)
+	{
+		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
+		error["ErrorID"] = task_error->ErrorID;
+		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
+		delete task_error;
+	}
+	this->onRspUnSubscribeFlowCtrlWarning(data, error, task->task_id, task->task_last);
+};
+
 void TdApi::processRspAuthenticate(Task *task)
 {
 	gil_scoped_acquire acquire;
@@ -35,6 +79,7 @@ void TdApi::processRspAuthenticate(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspAuthenticate(data, error, task->task_id, task->task_last);
@@ -68,6 +113,7 @@ void TdApi::processRspUserLogin(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspUserLogin(data, error, task->task_id, task->task_last);
@@ -90,6 +136,7 @@ void TdApi::processRspUserLogout(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspUserLogout(data, error, task->task_id, task->task_last);
@@ -140,6 +187,7 @@ void TdApi::processRspOrderInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspOrderInsert(data, error, task->task_id, task->task_last);
@@ -177,9 +225,49 @@ void TdApi::processRspOrderAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspOrderAction(data, error, task->task_id, task->task_last);
+};
+
+void TdApi::processRspMKBatchOrderAction(Task *task)
+{
+	gil_scoped_acquire acquire;
+	dict data;
+	if (task->task_data)
+	{
+		CThostFtdcMKInputOrderActionField *task_data = (CThostFtdcMKInputOrderActionField*)task->task_data;
+		data["BrokerID"] = toUtf(task_data->BrokerID);
+		data["InvestorID"] = toUtf(task_data->InvestorID);
+		data["OrderActionRef"] = task_data->OrderActionRef;
+		data["RequestID"] = task_data->RequestID;
+		data["FrontID"] = task_data->FrontID;
+		data["SessionID"] = task_data->SessionID;
+		data["ExchangeID"] = toUtf(task_data->ExchangeID);
+		data["ActionFlag"] = task_data->ActionFlag;
+		data["ActionMode"] = task_data->ActionMode;
+		data["LowerLimit"] = toUtf(task_data->LowerLimit);
+		data["UpperLimit"] = toUtf(task_data->UpperLimit);
+		data["UserID"] = toUtf(task_data->UserID);
+		data["ProductID"] = toUtf(task_data->ProductID);
+		data["InstrumentID"] = toUtf(task_data->InstrumentID);
+		data["OrderStatus"] = task_data->OrderStatus;
+		data["InvestUnitID"] = toUtf(task_data->InvestUnitID);
+		data["IPAddress"] = toUtf(task_data->IPAddress);
+		data["MacAddress"] = toUtf(task_data->MacAddress);
+		delete task_data;
+	}
+	dict error;
+	if (task->task_error)
+	{
+		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
+		error["ErrorID"] = task_error->ErrorID;
+		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
+		delete task_error;
+	}
+	this->onRspMKBatchOrderAction(data, error, task->task_id, task->task_last);
 };
 
 void TdApi::processRspExecOrderInsert(Task *task)
@@ -218,6 +306,7 @@ void TdApi::processRspExecOrderInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspExecOrderInsert(data, error, task->task_id, task->task_last);
@@ -253,6 +342,7 @@ void TdApi::processRspExecOrderAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspExecOrderAction(data, error, task->task_id, task->task_last);
@@ -283,6 +373,7 @@ void TdApi::processRspForQuoteInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspForQuoteInsert(data, error, task->task_id, task->task_last);
@@ -327,6 +418,7 @@ void TdApi::processRspQuoteInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQuoteInsert(data, error, task->task_id, task->task_last);
@@ -363,6 +455,7 @@ void TdApi::processRspQuoteAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQuoteAction(data, error, task->task_id, task->task_last);
@@ -394,6 +487,7 @@ void TdApi::processRspBatchOrderAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspBatchOrderAction(data, error, task->task_id, task->task_last);
@@ -431,6 +525,7 @@ void TdApi::processRspOptionSelfCloseInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspOptionSelfCloseInsert(data, error, task->task_id, task->task_last);
@@ -466,6 +561,7 @@ void TdApi::processRspOptionSelfCloseAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspOptionSelfCloseAction(data, error, task->task_id, task->task_last);
@@ -502,6 +598,7 @@ void TdApi::processRspCombActionInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspCombActionInsert(data, error, task->task_id, task->task_last);
@@ -585,6 +682,7 @@ void TdApi::processRspQryOrder(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryOrder(data, error, task->task_id, task->task_last);
@@ -635,6 +733,7 @@ void TdApi::processRspQryTrade(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryTrade(data, error, task->task_id, task->task_last);
@@ -698,6 +797,7 @@ void TdApi::processRspQryInvestorPosition(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInvestorPosition(data, error, task->task_id, task->task_last);
@@ -765,6 +865,7 @@ void TdApi::processRspQryTradingAccount(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryTradingAccount(data, error, task->task_id, task->task_last);
@@ -798,6 +899,7 @@ void TdApi::processRspQryInvestor(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInvestor(data, error, task->task_id, task->task_last);
@@ -824,6 +926,7 @@ void TdApi::processRspQryTradingCode(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryTradingCode(data, error, task->task_id, task->task_last);
@@ -854,6 +957,7 @@ void TdApi::processRspQryInstrumentMarginRate(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInstrumentMarginRate(data, error, task->task_id, task->task_last);
@@ -884,6 +988,7 @@ void TdApi::processRspQryInstrumentCommissionRate(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInstrumentCommissionRate(data, error, task->task_id, task->task_last);
@@ -907,6 +1012,7 @@ void TdApi::processRspQryExchange(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryExchange(data, error, task->task_id, task->task_last);
@@ -944,6 +1050,7 @@ void TdApi::processRspQryProduct(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryProduct(data, error, task->task_id, task->task_last);
@@ -995,6 +1102,7 @@ void TdApi::processRspQryInstrument(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInstrument(data, error, task->task_id, task->task_last);
@@ -1020,6 +1128,7 @@ void TdApi::processRspQryCombInstrument(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryCombInstrument(data, error, task->task_id, task->task_last);
@@ -1069,6 +1178,7 @@ void TdApi::processRspQryCombAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryCombAction(data, error, task->task_id, task->task_last);
@@ -1104,6 +1214,7 @@ void TdApi::processRspQryInvestorPositionForComb(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInvestorPositionForComb(data, error, task->task_id, task->task_last);
@@ -1170,6 +1281,7 @@ void TdApi::processRspQryDepthMarketData(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryDepthMarketData(data, error, task->task_id, task->task_last);
@@ -1198,6 +1310,7 @@ void TdApi::processRspQryInstrumentStatus(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInstrumentStatus(data, error, task->task_id, task->task_last);
@@ -1244,49 +1357,10 @@ void TdApi::processRspQryInvestorPositionDetail(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInvestorPositionDetail(data, error, task->task_id, task->task_last);
-};
-
-void TdApi::processRspQryInvestorPositionCombineDetail(Task *task)
-{
-	gil_scoped_acquire acquire;
-	dict data;
-	if (task->task_data)
-	{
-		CThostFtdcInvestorPositionCombineDetailField *task_data = (CThostFtdcInvestorPositionCombineDetailField*)task->task_data;
-		data["TradingDay"] = toUtf(task_data->TradingDay);
-		data["OpenDate"] = toUtf(task_data->OpenDate);
-		data["ExchangeID"] = toUtf(task_data->ExchangeID);
-		data["SettlementID"] = task_data->SettlementID;
-		data["BrokerID"] = toUtf(task_data->BrokerID);
-		data["InvestorID"] = toUtf(task_data->InvestorID);
-		data["ComTradeID"] = toUtf(task_data->ComTradeID);
-		data["TradeID"] = toUtf(task_data->TradeID);
-		data["InstrumentID"] = toUtf(task_data->InstrumentID);
-		data["HedgeFlag"] = task_data->HedgeFlag;
-		data["Direction"] = task_data->Direction;
-		data["TotalAmt"] = task_data->TotalAmt;
-		data["Margin"] = task_data->Margin;
-		data["ExchMargin"] = task_data->ExchMargin;
-		data["MarginRateByMoney"] = task_data->MarginRateByMoney;
-		data["MarginRateByVolume"] = task_data->MarginRateByVolume;
-		data["LegID"] = task_data->LegID;
-		data["LegMultiple"] = task_data->LegMultiple;
-		data["CombInstrumentID"] = toUtf(task_data->CombInstrumentID);
-		data["TradeGroupID"] = task_data->TradeGroupID;
-		delete task_data;
-	}
-	dict error;
-	if (task->task_error)
-	{
-		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
-		error["ErrorID"] = task_error->ErrorID;
-		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
-		delete task_error;
-	}
-	this->onRspQryInvestorPositionCombineDetail(data, error, task->task_id, task->task_last);
 };
 
 void TdApi::processRspQryExchangeMarginRate(Task *task)
@@ -1311,6 +1385,7 @@ void TdApi::processRspQryExchangeMarginRate(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryExchangeMarginRate(data, error, task->task_id, task->task_last);
@@ -1346,6 +1421,7 @@ void TdApi::processRspQryExchangeMarginRateAdjust(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryExchangeMarginRateAdjust(data, error, task->task_id, task->task_last);
@@ -1375,6 +1451,7 @@ void TdApi::processRspQryOptionInstrTradeCost(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryOptionInstrTradeCost(data, error, task->task_id, task->task_last);
@@ -1407,6 +1484,7 @@ void TdApi::processRspQryOptionInstrCommRate(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryOptionInstrCommRate(data, error, task->task_id, task->task_last);
@@ -1471,6 +1549,7 @@ void TdApi::processRspQryExecOrder(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryExecOrder(data, error, task->task_id, task->task_last);
@@ -1515,6 +1594,7 @@ void TdApi::processRspQryForQuote(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryForQuote(data, error, task->task_id, task->task_last);
@@ -1540,9 +1620,88 @@ void TdApi::processRspQryForQuoteParam(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryForQuoteParam(data, error, task->task_id, task->task_last);
+};
+
+void TdApi::processRspQryInvestorProdSPBMDetail(Task *task)
+{
+	gil_scoped_acquire acquire;
+	dict data;
+	if (task->task_data)
+	{
+		CThostFtdcInvestorProdSPBMDetailField *task_data = (CThostFtdcInvestorProdSPBMDetailField*)task->task_data;
+		data["ExchangeID"] = toUtf(task_data->ExchangeID);
+		data["BrokerID"] = toUtf(task_data->BrokerID);
+		data["InvestorID"] = toUtf(task_data->InvestorID);
+		data["ProdFamilyCode"] = toUtf(task_data->ProdFamilyCode);
+		data["IntraInstrMargin"] = task_data->IntraInstrMargin;
+		data["BCollectingMargin"] = task_data->BCollectingMargin;
+		data["SCollectingMargin"] = task_data->SCollectingMargin;
+		data["IntraProdMargin"] = task_data->IntraProdMargin;
+		data["NetMargin"] = task_data->NetMargin;
+		data["InterProdMargin"] = task_data->InterProdMargin;
+		data["SingleMargin"] = task_data->SingleMargin;
+		data["AddOnMargin"] = task_data->AddOnMargin;
+		data["DeliveryMargin"] = task_data->DeliveryMargin;
+		data["OptionMinRisk"] = task_data->OptionMinRisk;
+		data["RealOptionValueOffset"] = task_data->RealOptionValueOffset;
+		data["Margin"] = task_data->Margin;
+		data["ExchMargin"] = task_data->ExchMargin;
+		delete task_data;
+	}
+	dict error;
+	if (task->task_error)
+	{
+		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
+		error["ErrorID"] = task_error->ErrorID;
+		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
+		delete task_error;
+	}
+	this->onRspQryInvestorProdSPBMDetail(data, error, task->task_id, task->task_last);
+};
+
+void TdApi::processRspQryTraderOffer(Task *task)
+{
+	gil_scoped_acquire acquire;
+	dict data;
+	if (task->task_data)
+	{
+		CThostFtdcTraderOfferField *task_data = (CThostFtdcTraderOfferField*)task->task_data;
+		data["ExchangeID"] = toUtf(task_data->ExchangeID);
+		data["TraderID"] = toUtf(task_data->TraderID);
+		data["ParticipantID"] = toUtf(task_data->ParticipantID);
+		data["Password"] = toUtf(task_data->Password);
+		data["InstallID"] = task_data->InstallID;
+		data["OrderLocalID"] = toUtf(task_data->OrderLocalID);
+		data["TraderConnectStatus"] = task_data->TraderConnectStatus;
+		data["ConnectRequestDate"] = toUtf(task_data->ConnectRequestDate);
+		data["ConnectRequestTime"] = toUtf(task_data->ConnectRequestTime);
+		data["LastReportDate"] = toUtf(task_data->LastReportDate);
+		data["LastReportTime"] = toUtf(task_data->LastReportTime);
+		data["ConnectDate"] = toUtf(task_data->ConnectDate);
+		data["ConnectTime"] = toUtf(task_data->ConnectTime);
+		data["StartDate"] = toUtf(task_data->StartDate);
+		data["StartTime"] = toUtf(task_data->StartTime);
+		data["TradingDay"] = toUtf(task_data->TradingDay);
+		data["BrokerID"] = toUtf(task_data->BrokerID);
+		data["MaxTradeID"] = toUtf(task_data->MaxTradeID);
+		data["MaxOrderMessageReference"] = toUtf(task_data->MaxOrderMessageReference);
+		delete task_data;
+	}
+	dict error;
+	if (task->task_error)
+	{
+		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
+		error["ErrorID"] = task_error->ErrorID;
+		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
+		delete task_error;
+	}
+	this->onRspQryTraderOffer(data, error, task->task_id, task->task_last);
 };
 
 void TdApi::processRspQryQuote(Task *task)
@@ -1611,6 +1770,7 @@ void TdApi::processRspQryQuote(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryQuote(data, error, task->task_id, task->task_last);
@@ -1671,6 +1831,7 @@ void TdApi::processRspQryOptionSelfClose(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryOptionSelfClose(data, error, task->task_id, task->task_last);
@@ -1685,6 +1846,7 @@ void TdApi::processRspError(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspError(error, task->task_id, task->task_last);
@@ -1852,6 +2014,7 @@ void TdApi::processErrRtnOrderInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnOrderInsert(data, error);
@@ -1901,6 +2064,7 @@ void TdApi::processErrRtnOrderAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnOrderAction(data, error);
@@ -2018,6 +2182,7 @@ void TdApi::processErrRtnExecOrderInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnExecOrderInsert(data, error);
@@ -2066,6 +2231,7 @@ void TdApi::processErrRtnExecOrderAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnExecOrderAction(data, error);
@@ -2096,6 +2262,7 @@ void TdApi::processErrRtnForQuoteInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnForQuoteInsert(data, error);
@@ -2203,6 +2370,7 @@ void TdApi::processErrRtnQuoteInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnQuoteInsert(data, error);
@@ -2250,6 +2418,7 @@ void TdApi::processErrRtnQuoteAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnQuoteAction(data, error);
@@ -2309,6 +2478,7 @@ void TdApi::processErrRtnBatchOrderAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnBatchOrderAction(data, error);
@@ -2398,6 +2568,7 @@ void TdApi::processErrRtnOptionSelfCloseInsert(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnOptionSelfCloseInsert(data, error);
@@ -2445,6 +2616,7 @@ void TdApi::processErrRtnOptionSelfCloseAction(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onErrRtnOptionSelfCloseAction(data, error);
@@ -2513,8 +2685,24 @@ void TdApi::processRspQryInstrumentOrderCommRate(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspQryInstrumentOrderCommRate(data, error, task->task_id, task->task_last);
 };
 
+void TdApi::processRtnFlowCtrlWarning(Task *task)
+{
+	gil_scoped_acquire acquire;
+	dict data;
+	if (task->task_data)
+	{
+		CThostFtdcFlowCtrlWarningField *task_data = (CThostFtdcFlowCtrlWarningField*)task->task_data;
+		data["TraderID"] = toUtf(task_data->TraderID);
+		data["TriggerTime"] = toUtf(task_data->TriggerTime);
+		data["Tgid"] = task_data->Tgid;
+		data["CurPkgCnt"] = task_data->CurPkgCnt;
+		delete task_data;
+	}
+	this->onRtnFlowCtrlWarning(data);
+};

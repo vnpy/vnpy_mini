@@ -10,6 +10,8 @@ int reqOrderInsert(const dict &req, int reqid);
 
 int reqOrderAction(const dict &req, int reqid);
 
+int reqMKBatchOrderAction(const dict &req, int reqid);
+
 int reqExecOrderInsert(const dict &req, int reqid);
 
 int reqExecOrderAction(const dict &req, int reqid);
@@ -64,8 +66,6 @@ int reqQryInstrumentStatus(const dict &req, int reqid);
 
 int reqQryInvestorPositionDetail(const dict &req, int reqid);
 
-int reqQryInvestorPositionCombineDetail(const dict &req, int reqid);
-
 int reqQryExchangeMarginRate(const dict &req, int reqid);
 
 int reqQryExchangeMarginRateAdjust(const dict &req, int reqid);
@@ -84,3 +84,6 @@ int reqQryInstrumentOrderCommRate(const dict &req, int reqid);
 
 int reqQryForQuoteParam(const dict &req, int reqid);
 
+int reqQryTraderOffer(const dict &req, int reqid);
+
+int reqQryInvestorProdSPBMDetail(const dict &req, int reqid);

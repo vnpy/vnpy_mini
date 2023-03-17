@@ -44,6 +44,7 @@ void MdApi::processRspUserLogin(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspUserLogin(data, error, task->task_id, task->task_last);
@@ -66,6 +67,7 @@ void MdApi::processRspUserLogout(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspUserLogout(data, error, task->task_id, task->task_last);
@@ -80,6 +82,7 @@ void MdApi::processRspError(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspError(error, task->task_id, task->task_last);
@@ -101,6 +104,7 @@ void MdApi::processRspSubMarketData(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspSubMarketData(data, error, task->task_id, task->task_last);
@@ -122,6 +126,7 @@ void MdApi::processRspUnSubMarketData(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspUnSubMarketData(data, error, task->task_id, task->task_last);
@@ -143,6 +148,7 @@ void MdApi::processRspSubForQuoteRsp(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspSubForQuoteRsp(data, error, task->task_id, task->task_last);
@@ -164,6 +170,7 @@ void MdApi::processRspUnSubForQuoteRsp(Task *task)
 		CThostFtdcRspInfoField *task_error = (CThostFtdcRspInfoField*)task->task_error;
 		error["ErrorID"] = task_error->ErrorID;
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		error["RecordCount"] = task_error->RecordCount;
 		delete task_error;
 	}
 	this->onRspUnSubForQuoteRsp(data, error, task->task_id, task->task_last);
@@ -261,4 +268,3 @@ void MdApi::processRtnForQuoteRsp(Task *task)
 	}
 	this->onRtnForQuoteRsp(data);
 };
-

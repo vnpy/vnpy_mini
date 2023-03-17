@@ -4,6 +4,10 @@ virtual void onFrontDisconnected(int reqid) {};
 
 virtual void onHeartBeatWarning(int reqid) {};
 
+virtual void onRspSubscribeFlowCtrlWarning(const dict &data, const dict &error, int reqid, bool last) {};
+
+virtual void onRspUnSubscribeFlowCtrlWarning(const dict &data, const dict &error, int reqid, bool last) {};
+
 virtual void onRspAuthenticate(const dict &data, const dict &error, int reqid, bool last) {};
 
 virtual void onRspUserLogin(const dict &data, const dict &error, int reqid, bool last) {};
@@ -13,6 +17,8 @@ virtual void onRspUserLogout(const dict &data, const dict &error, int reqid, boo
 virtual void onRspOrderInsert(const dict &data, const dict &error, int reqid, bool last) {};
 
 virtual void onRspOrderAction(const dict &data, const dict &error, int reqid, bool last) {};
+
+virtual void onRspMKBatchOrderAction(const dict &data, const dict &error, int reqid, bool last) {};
 
 virtual void onRspExecOrderInsert(const dict &data, const dict &error, int reqid, bool last) {};
 
@@ -66,8 +72,6 @@ virtual void onRspQryInstrumentStatus(const dict &data, const dict &error, int r
 
 virtual void onRspQryInvestorPositionDetail(const dict &data, const dict &error, int reqid, bool last) {};
 
-virtual void onRspQryInvestorPositionCombineDetail(const dict &data, const dict &error, int reqid, bool last) {};
-
 virtual void onRspQryExchangeMarginRate(const dict &data, const dict &error, int reqid, bool last) {};
 
 virtual void onRspQryExchangeMarginRateAdjust(const dict &data, const dict &error, int reqid, bool last) {};
@@ -81,6 +85,10 @@ virtual void onRspQryExecOrder(const dict &data, const dict &error, int reqid, b
 virtual void onRspQryForQuote(const dict &data, const dict &error, int reqid, bool last) {};
 
 virtual void onRspQryForQuoteParam(const dict &data, const dict &error, int reqid, bool last) {};
+
+virtual void onRspQryInvestorProdSPBMDetail(const dict &data, const dict &error, int reqid, bool last) {};
+
+virtual void onRspQryTraderOffer(const dict &data, const dict &error, int reqid, bool last) {};
 
 virtual void onRspQryQuote(const dict &data, const dict &error, int reqid, bool last) {};
 
@@ -126,3 +134,4 @@ virtual void onRtnCombAction(const dict &data) {};
 
 virtual void onRspQryInstrumentOrderCommRate(const dict &data, const dict &error, int reqid, bool last) {};
 
+virtual void onRtnFlowCtrlWarning(const dict &data) {};
