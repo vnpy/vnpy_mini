@@ -23,4 +23,3 @@ virtual void onRtnDepthMarketData(const dict &data) {};
 virtual void onRtnMBLMarketData(const dict &data) {};
 
 virtual void onRtnForQuoteRsp(const dict &data) {};
-

@@ -26,4 +26,3 @@ int MdApi::reqUserLogout(const dict &req, int reqid)
 	int i = this->api->ReqUserLogout(&myreq, reqid);
 	return i;
 };
-

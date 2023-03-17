@@ -1,1 +1,1 @@
-recursive-include vnpy_mini *.dll *.so *.pyd *.h *.cpp *.lib
+recursive-include vnpy_mini *.dll *.so *.h *.cpp *.lib

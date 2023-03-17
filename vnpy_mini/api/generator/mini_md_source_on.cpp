@@ -153,4 +153,3 @@ void onRtnForQuoteRsp(const dict &data) override
 		cout << e.what() << endl;
 	}
 };
-

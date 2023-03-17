@@ -161,6 +161,7 @@ CThostFtdcTransferQryDetailRspField = {
 CThostFtdcRspInfoField = {
     "ErrorID": "int",
     "ErrorMsg": "string",
+    "RecordCount": "int",
 }
 
 CThostFtdcExchangeField = {
@@ -417,6 +418,26 @@ CThostFtdcInstrumentCommissionRateField = {
     "CloseRatioByVolume": "double",
     "CloseTodayRatioByMoney": "double",
     "CloseTodayRatioByVolume": "double",
+}
+
+CThostFtdcInvestorProdSPBMDetailField = {
+    "ExchangeID": "string",
+    "BrokerID": "string",
+    "InvestorID": "string",
+    "ProdFamilyCode": "string",
+    "IntraInstrMargin": "double",
+    "BCollectingMargin": "double",
+    "SCollectingMargin": "double",
+    "IntraProdMargin": "double",
+    "NetMargin": "double",
+    "InterProdMargin": "double",
+    "SingleMargin": "double",
+    "AddOnMargin": "double",
+    "DeliveryMargin": "double",
+    "OptionMinRisk": "double",
+    "RealOptionValueOffset": "double",
+    "Margin": "double",
+    "ExchMargin": "double",
 }
 
 CThostFtdcDepthMarketDataField = {
@@ -812,6 +833,27 @@ CThostFtdcInputOrderActionField = {
     "VolumeChange": "int",
     "UserID": "string",
     "InstrumentID": "string",
+    "InvestUnitID": "string",
+    "IPAddress": "string",
+    "MacAddress": "string",
+}
+
+CThostFtdcMKInputOrderActionField = {
+    "BrokerID": "string",
+    "InvestorID": "string",
+    "OrderActionRef": "int",
+    "RequestID": "int",
+    "FrontID": "int",
+    "SessionID": "int",
+    "ExchangeID": "string",
+    "ActionFlag": "char",
+    "ActionMode": "char",
+    "LowerLimit": "string",
+    "UpperLimit": "string",
+    "UserID": "string",
+    "ProductID": "string",
+    "InstrumentID": "string",
+    "OrderStatus": "char",
     "InvestUnitID": "string",
     "IPAddress": "string",
     "MacAddress": "string",
@@ -1327,7 +1369,6 @@ CThostFtdcQryBrokerUserFunctionField = {
 
 CThostFtdcQryTraderOfferField = {
     "ExchangeID": "string",
-    "ParticipantID": "string",
     "TraderID": "string",
 }
 
@@ -2526,6 +2567,13 @@ CThostFtdcQryForQuoteParamField = {
     "BrokerID": "string",
     "InstrumentID": "string",
     "ExchangeID": "string",
+}
+
+CThostFtdcQryInvestorProdSPBMDetailField = {
+    "ExchangeID": "string",
+    "BrokerID": "string",
+    "InvestorID": "string",
+    "ProdFamilyCode": "string",
 }
 
 CThostFtdcForQuoteParamField = {
@@ -4702,4 +4750,15 @@ CThostFtdcUserSystemInfoField = {
     "ClientIPPort": "int",
     "ClientLoginTime": "string",
     "ClientAppID": "string",
+}
+
+CThostFtdcSpecificTraderField = {
+    "TraderID": "string",
+}
+
+CThostFtdcFlowCtrlWarningField = {
+    "TraderID": "string",
+    "TriggerTime": "string",
+    "Tgid": "unsigned int",
+    "CurPkgCnt": "unsigned int",
 }

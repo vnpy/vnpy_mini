@@ -4,6 +4,10 @@ void processFrontDisconnected(Task *task);
 
 void processHeartBeatWarning(Task *task);
 
+void processRspSubscribeFlowCtrlWarning(Task *task);
+
+void processRspUnSubscribeFlowCtrlWarning(Task *task);
+
 void processRspAuthenticate(Task *task);
 
 void processRspUserLogin(Task *task);
@@ -13,6 +17,8 @@ void processRspUserLogout(Task *task);
 void processRspOrderInsert(Task *task);
 
 void processRspOrderAction(Task *task);
+
+void processRspMKBatchOrderAction(Task *task);
 
 void processRspExecOrderInsert(Task *task);
 
@@ -66,8 +72,6 @@ void processRspQryInstrumentStatus(Task *task);
 
 void processRspQryInvestorPositionDetail(Task *task);
 
-void processRspQryInvestorPositionCombineDetail(Task *task);
-
 void processRspQryExchangeMarginRate(Task *task);
 
 void processRspQryExchangeMarginRateAdjust(Task *task);
@@ -81,6 +85,10 @@ void processRspQryExecOrder(Task *task);
 void processRspQryForQuote(Task *task);
 
 void processRspQryForQuoteParam(Task *task);
+
+void processRspQryInvestorProdSPBMDetail(Task *task);
+
+void processRspQryTraderOffer(Task *task);
 
 void processRspQryQuote(Task *task);
 
@@ -126,3 +134,4 @@ void processRtnCombAction(Task *task);
 
 void processRspQryInstrumentOrderCommRate(Task *task);
 
+void processRtnFlowCtrlWarning(Task *task);
