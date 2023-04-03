@@ -167,9 +167,18 @@ class MiniGateway(BaseGateway):
         appid: str = setting["产品名称"]
         auth_code: str = setting["授权编码"]
 
-        if not td_address.startswith("tcp://"):
+        if (
+            (not td_address.startswith("tcp://"))
+            and (not td_address.startswith("ssl://"))
+            and (not td_address.startswith("socks"))
+        ):
             td_address = "tcp://" + td_address
-        if not md_address.startswith("tcp://"):
+
+        if (
+            (not md_address.startswith("tcp://"))
+            and (not md_address.startswith("ssl://"))
+            and (not md_address.startswith("socks"))
+        ):
             md_address = "tcp://" + md_address
 
         self.td_api.connect(td_address, userid, password, brokerid, auth_code, appid)
@@ -420,7 +429,6 @@ class MiniTdApi(TdApi):
 
         self.frontid: int = 0
         self.sessionid: int = 0
-
         self.order_data: List[dict] = []
         self.trade_data: List[dict] = []
         self.positions: Dict[str, PositionData] = {}
@@ -562,7 +570,6 @@ class MiniTdApi(TdApi):
             gateway_name=self.gateway_name
         )
         account.available = data["Available"]
-        account.balance = account.available + account.frozen
 
         self.gateway.on_account(account)
 
@@ -592,6 +599,7 @@ class MiniTdApi(TdApi):
                 contract.option_type = OPTIONTYPE_MINI2VT.get(data["OptionsType"], None)
                 contract.option_strike = data["StrikePrice"]
                 contract.option_index = str(data["StrikePrice"])
+                contract.option_listed = datetime.strptime(data["OpenDate"], "%Y%m%d")
                 contract.option_expiry = datetime.strptime(data["ExpireDate"], "%Y%m%d")
 
             self.gateway.on_contract(contract)
