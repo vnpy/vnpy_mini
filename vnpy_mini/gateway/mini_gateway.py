@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from vnpy.event import EventEngine
 from vnpy.trader.constant import (
@@ -31,13 +31,11 @@ from vnpy.trader.event import EVENT_TIMER
 from ..api import (
     MdApi,
     TdApi,
-    THOST_FTDC_OAS_Submitted,
-    THOST_FTDC_OAS_Accepted,
-    THOST_FTDC_OAS_Rejected,
     THOST_FTDC_OST_NoTradeQueueing,
     THOST_FTDC_OST_PartTradedQueueing,
     THOST_FTDC_OST_AllTraded,
     THOST_FTDC_OST_Canceled,
+    THOST_FTDC_OST_Unknown,
     THOST_FTDC_D_Buy,
     THOST_FTDC_D_Sell,
     THOST_FTDC_PD_Long,
@@ -67,13 +65,11 @@ from ..api import (
 
 # 委托状态映射
 STATUS_MINI2VT: Dict[str, Status] = {
-    THOST_FTDC_OAS_Submitted: Status.SUBMITTING,
-    THOST_FTDC_OAS_Accepted: Status.SUBMITTING,
-    THOST_FTDC_OAS_Rejected: Status.REJECTED,
     THOST_FTDC_OST_NoTradeQueueing: Status.NOTTRADED,
     THOST_FTDC_OST_PartTradedQueueing: Status.PARTTRADED,
     THOST_FTDC_OST_AllTraded: Status.ALLTRADED,
-    THOST_FTDC_OST_Canceled: Status.CANCELLED
+    THOST_FTDC_OST_Canceled: Status.CANCELLED,
+    THOST_FTDC_OST_Unknown: Status.SUBMITTING
 }
 
 # 多空方向映射
@@ -86,13 +82,13 @@ DIRECTION_MINI2VT[THOST_FTDC_PD_Long] = Direction.LONG
 DIRECTION_MINI2VT[THOST_FTDC_PD_Short] = Direction.SHORT
 
 # 委托类型映射
-ORDERTYPE_VT2MINI: Dict[OrderType, Tuple] = {
+ORDERTYPE_VT2MINI: Dict[OrderType, tuple] = {
     OrderType.LIMIT: (THOST_FTDC_OPT_LimitPrice, THOST_FTDC_TC_GFD, THOST_FTDC_VC_AV),
     OrderType.MARKET: (THOST_FTDC_OPT_AnyPrice, THOST_FTDC_TC_GFD, THOST_FTDC_VC_AV),
     OrderType.FAK: (THOST_FTDC_OPT_LimitPrice, THOST_FTDC_TC_IOC, THOST_FTDC_VC_AV),
     OrderType.FOK: (THOST_FTDC_OPT_LimitPrice, THOST_FTDC_TC_IOC, THOST_FTDC_VC_CV),
 }
-ORDERTYPE_MINI2VT = {v: k for k, v in ORDERTYPE_VT2MINI.items()}
+ORDERTYPE_MINI2VT: Dict[tuple, OrderType] = {v: k for k, v in ORDERTYPE_VT2MINI.items()}
 
 # 开平方向映射
 OFFSET_VT2MINI: Dict[Offset, str] = {
@@ -353,7 +349,7 @@ class MiniMdApi(MdApi):
 
         self.gateway.on_tick(tick)
 
-    def connect(self, address: str, userid: str, password: str, brokerid: int) -> None:
+    def connect(self, address: str, userid: str, password: str, brokerid: str) -> None:
         """连接服务器"""
         self.userid = userid
         self.password = password
@@ -694,7 +690,7 @@ class MiniTdApi(TdApi):
         address: str,
         userid: str,
         password: str,
-        brokerid: int,
+        brokerid: str,
         auth_code: str,
         appid: str
     ) -> None:
@@ -783,7 +779,10 @@ class MiniTdApi(TdApi):
         }
 
         self.reqid += 1
-        self.reqOrderInsert(mini_req, self.reqid)
+        n: int = self.reqOrderInsert(mini_req, self.reqid)
+        if n:
+            self.gateway.write_log(f"委托请求发送失败，错误代码：{n}")
+            return ""
 
         orderid: str = f"{self.frontid}_{self.sessionid}_{self.order_ref}"
         order: OrderData = req.create_order_data(orderid, self.gateway_name)
