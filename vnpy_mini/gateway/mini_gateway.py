@@ -2,7 +2,7 @@ from pathlib import Path
 import sys
 from datetime import datetime
 
-from vnpy.event import EventEngine
+from vnpy.event import EventEngine, Event
 from vnpy.trader.constant import (
     Direction,
     Offset,
@@ -156,6 +156,8 @@ class MiniGateway(BaseGateway):
         self.td_api: MiniTdApi = MiniTdApi(self)
         self.md_api: MiniMdApi = MiniMdApi(self)
 
+        self.count: int = 0
+
     def connect(self, setting: dict) -> None:
         """连接交易接口"""
         userid: str = setting["用户名"]
@@ -214,10 +216,10 @@ class MiniGateway(BaseGateway):
         """输出错误信息日志"""
         error_id: int = error["ErrorID"]
         error_msg: str = error["ErrorMsg"]
-        msg: str = f"{msg}，代码：{error_id}，信息：{error_msg}"
+        msg = f"{msg}，代码：{error_id}，信息：{error_msg}"
         self.write_log(msg)
 
-    def process_timer_event(self, event) -> None:
+    def process_timer_event(self, event: Event) -> None:
         """定时事件处理"""
         self.count += 1
         if self.count < 2:
@@ -232,7 +234,7 @@ class MiniGateway(BaseGateway):
 
     def init_query(self) -> None:
         """初始化查询任务"""
-        self.count: int = 0
+        self.count = 0
         self.query_functions: list = [self.query_account, self.query_position]
         self.event_engine.register(EVENT_TIMER, self.process_timer_event)
 
@@ -307,11 +309,11 @@ class MiniMdApi(MdApi):
         if contract.exchange == Exchange.DCE or not data["ActionDay"]:
             date_str: str = self.current_date
         else:
-            date_str: str = data["ActionDay"]
+            date_str = data["ActionDay"]
 
         timestamp: str = f"{date_str} {data['UpdateTime']}.{int(data['UpdateMillisec']/100)}"
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S.%f")
-        dt: datetime = dt.replace(tzinfo=CHINA_TZ)
+        dt = dt.replace(tzinfo=CHINA_TZ)
 
         tick: TickData = TickData(
             symbol=symbol,
@@ -518,7 +520,7 @@ class MiniTdApi(TdApi):
         if contract:
             # 获取之前缓存的持仓数据缓存
             key: str = f"{data['InstrumentID'], data['PosiDirection']}"
-            position: PositionData = self.positions.get(key, None)
+            position = self.positions.get(key, None)
             if not position:
                 position = PositionData(
                     symbol=data["InstrumentID"],
@@ -631,7 +633,7 @@ class MiniTdApi(TdApi):
             else:
                 return
         else:
-            timestamp: str = f"{self.trading_date} {data['InsertTime']}"
+            timestamp = f"{self.trading_date} {data['InsertTime']}"
 
         symbol: str = data["InstrumentID"]
         contract: ContractData = symbol_contract_map[symbol]
@@ -642,7 +644,7 @@ class MiniTdApi(TdApi):
         orderid: str = f"{frontid}_{sessionid}_{order_ref}"
 
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S")
-        dt: datetime = dt.replace(tzinfo=CHINA_TZ)
+        dt = dt.replace(tzinfo=CHINA_TZ)
 
         tp: tuple = (data["OrderPriceType"], data["TimeCondition"], data["VolumeCondition"])
         order_type: OrderType = ORDERTYPE_MINI2VT.get(tp, None)
@@ -681,7 +683,7 @@ class MiniTdApi(TdApi):
 
         timestamp: str = f"{data['TradeDate']} {data['TradeTime']}"
         dt: datetime = datetime.strptime(timestamp, "%Y%m%d %H:%M:%S")
-        dt: datetime = dt.replace(tzinfo=CHINA_TZ)
+        dt = dt.replace(tzinfo=CHINA_TZ)
 
         trade: TradeData = TradeData(
             symbol=symbol,
@@ -800,7 +802,8 @@ class MiniTdApi(TdApi):
         order: OrderData = req.create_order_data(orderid, self.gateway_name)
         self.gateway.on_order(order)
 
-        return order.vt_orderid
+        vt_orderid: str = order.vt_orderid
+        return vt_orderid
 
     def cancel_order(self, req: CancelRequest) -> None:
         """委托撤单"""
