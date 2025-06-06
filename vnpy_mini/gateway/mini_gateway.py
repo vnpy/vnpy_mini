@@ -576,7 +576,7 @@ class MiniTdApi(TdApi):
 
     def onRspQryInstrument(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """合约查询回报"""
-        product: Product = PRODUCT_MINI2VT.get(data.get("ProductClass", None), None)
+        product: Product | None = PRODUCT_MINI2VT.get(data.get("ProductClass", None), None)
         if product:
             contract: ContractData = ContractData(
                 symbol=data["InstrumentID"],
@@ -625,7 +625,8 @@ class MiniTdApi(TdApi):
             self.order_data.append(data)
             return
 
-        insert_time: str = data.get("InsertTime", None)
+        # 获取时间戳
+        insert_time: str | None = data.get("InsertTime")
         if not insert_time:
             if STATUS_MINI2VT[data["OrderStatus"]] == Status.CANCELLED:
                 time: str = datetime.now().strftime("%H:%M:%S")
@@ -633,7 +634,7 @@ class MiniTdApi(TdApi):
             else:
                 return
         else:
-            timestamp = f"{self.trading_date} {data['InsertTime']}"
+            timestamp = f"{self.trading_date} {insert_time}"
 
         symbol: str = data["InstrumentID"]
         contract: ContractData = symbol_contract_map[symbol]
