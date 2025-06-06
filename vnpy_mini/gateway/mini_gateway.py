@@ -576,7 +576,7 @@ class MiniTdApi(TdApi):
 
     def onRspQryInstrument(self, data: dict, error: dict, reqid: int, last: bool) -> None:
         """合约查询回报"""
-        product: Product | None = PRODUCT_MINI2VT.get(data.get("ProductClass", None), None)
+        product: Product | None = PRODUCT_MINI2VT.get(str(data.get("ProductClass", "")), None)
         if product:
             contract: ContractData = ContractData(
                 symbol=data["InstrumentID"],
