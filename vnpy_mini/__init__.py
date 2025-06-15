@@ -26,6 +26,9 @@ import importlib_metadata
 from .gateway import MiniGateway
 
 
+__all__ = ["MiniGateway"]
+
+
 try:
     __version__ = importlib_metadata.version("vnpy_mini")
 except importlib_metadata.PackageNotFoundError:

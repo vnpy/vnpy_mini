@@ -1,3 +1,3 @@
-from .vnminimd import MdApi
-from .vnminitd import TdApi
-from .mini_constant import *
+from .vnminimd import MdApi      # noqa
+from .vnminitd import TdApi      # noqa
+from .mini_constant import *     # noqa
