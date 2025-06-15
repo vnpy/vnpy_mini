@@ -1,7 +1,7 @@
 [project]
 name = "vnpy_mini"
 version = "1.6.3.2"
-description = "CTP Minigateway for vn.py quant trading framework."
+description = "CTP Mini gateway for vn.py quant trading framework."
 readme = "README.md"
 license = {text = "MIT"}
 authors = [{name = "Xiaoyou Chen", email = "xiaoyou.chen@mail.vnpy.com"}]
@@ -9,7 +9,6 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
-    "Operating System :: MacOS",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -50,8 +49,7 @@ include = [
     "**/*.h",
     "**/*.cpp",
     "**/*.lib",
-    "**/*.a",
-    "**/*.framework/**",  # 添加Mac框架文件夹支持
+    "**/*.a"
 ]
 
 preserve-path = true 
