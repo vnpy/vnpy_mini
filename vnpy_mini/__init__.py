@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-import importlib_metadata
+from importlib import metadata
 
 from .gateway import MiniGateway
 
@@ -30,6 +30,6 @@ __all__ = ["MiniGateway"]
 
 
 try:
-    __version__ = importlib_metadata.version("vnpy_mini")
-except importlib_metadata.PackageNotFoundError:
+    __version__ = metadata.version("vnpy_mini")
+except metadata.PackageNotFoundError:
     __version__ = "dev"
