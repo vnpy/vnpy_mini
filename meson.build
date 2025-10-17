@@ -1,7 +1,7 @@
 project(
   'vnpy_mini',
   'cpp',
-  version: '1.6.3.2',
+  version: '1.6.3.3',
   license: 'MIT',
   meson_version: '>=1.7.0',
   default_options: [
