@@ -1,4 +1,4 @@
-// vnminimd.cpp : 定义 DLL 应用程序的导出函数。
+// vnminitd.cpp : 定义 DLL 应用程序的导出函数。
 //
 
 #include "vnminitd.h"
@@ -5243,7 +5243,7 @@ int TdApi::reqQryInvestorProdSPBMDetail(const dict& req, int reqid)
 };
 
 ///-------------------------------------------------------------------------------------
-///Boost.Python封装
+///Pybind11封装
 ///-------------------------------------------------------------------------------------
 
 class PyTdApi : public TdApi
