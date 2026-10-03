@@ -1,3 +1,5 @@
+"""实现 CTP Mini 交易接口。"""
+
 from pathlib import Path
 import sys
 from datetime import datetime
@@ -240,7 +242,7 @@ class MiniGateway(BaseGateway):
 
 
 class MiniMdApi(MdApi):
-    """"""
+    """对接 CTP Mini 柜台的行情接口。"""
 
     def __init__(self, gateway: MiniGateway) -> None:
         """构造函数"""
@@ -404,7 +406,7 @@ class MiniMdApi(MdApi):
 
 
 class MiniTdApi(TdApi):
-    """"""
+    """对接 CTP Mini 柜台的交易接口。"""
 
     def __init__(self, gateway: MiniGateway) -> None:
         """构造函数"""
