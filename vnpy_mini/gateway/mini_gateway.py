@@ -1,5 +1,6 @@
 """实现 CTP Mini 交易接口。"""
 
+from collections.abc import Callable
 from pathlib import Path
 import sys
 from datetime import datetime
@@ -125,8 +126,8 @@ OPTIONTYPE_MINI2VT: dict[str, OptionType] = {
 }
 
 # 其他常量
-MAX_FLOAT = sys.float_info.max                  # 浮点数极限值
-CHINA_TZ = ZoneInfo("Asia/Shanghai")       # 中国时区
+MAX_FLOAT: float = sys.float_info.max                  # 浮点数极限值
+CHINA_TZ: ZoneInfo = ZoneInfo("Asia/Shanghai")       # 中国时区
 
 # 合约数据全局缓存字典
 symbol_contract_map: dict[str, ContractData] = {}
@@ -228,7 +229,7 @@ class MiniGateway(BaseGateway):
             return
         self.count = 0
 
-        func = self.query_functions.pop(0)
+        func: Callable[[], None] = self.query_functions.pop(0)
         func()
         self.query_functions.append(func)
 
@@ -279,6 +280,7 @@ class MiniMdApi(MdApi):
             self.login_status = True
             self.gateway.write_log("行情服务器登录成功")
 
+            symbol: str
             for symbol in self.subscribed:
                 self.subscribeMarketData(symbol)
         else:
@@ -510,6 +512,7 @@ class MiniTdApi(TdApi):
         """持仓查询回报"""
         if not data:
             if last:
+                pos: PositionData
                 for pos in self.positions.values():
                     self.gateway.on_position(pos)
                 self.positions.clear()
@@ -772,6 +775,9 @@ class MiniTdApi(TdApi):
         self.order_ref += 1
 
         tp: tuple = ORDERTYPE_VT2MINI[req.type]
+        price_type: str
+        time_condition: str
+        volume_condition: str
         price_type, time_condition, volume_condition = tp
 
         mini_req: dict = {
@@ -810,6 +816,9 @@ class MiniTdApi(TdApi):
 
     def cancel_order(self, req: CancelRequest) -> None:
         """委托撤单"""
+        frontid: str
+        sessionid: str
+        order_ref: str
         frontid, sessionid, order_ref = req.orderid.split("_")
 
         mini_req: dict = {
