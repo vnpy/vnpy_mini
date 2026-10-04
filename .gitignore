@@ -36,3 +36,7 @@ __pycache__/
 .vs/
 x64/
 
+# Type checker / linter / test caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
