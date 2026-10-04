@@ -139,7 +139,7 @@ class MiniGateway(BaseGateway):
 
     default_name: str = "MINI"
 
-    default_setting: dict[str, str] = {
+    default_setting: dict[str, str | int | float | bool] = {
         "用户名": "",
         "密码": "",
         "经纪商代码": "",
@@ -149,7 +149,7 @@ class MiniGateway(BaseGateway):
         "授权编码": ""
     }
 
-    exchanges: list[str] = list(EXCHANGE_MINI2VT.values())
+    exchanges: list[Exchange] = list(EXCHANGE_MINI2VT.values())
 
     def __init__(self, event_engine: EventEngine, gateway_name: str) -> None:
         """构造函数"""
@@ -303,7 +303,7 @@ class MiniMdApi(MdApi):
 
         # 过滤还没有收到合约数据前的行情推送
         symbol: str = data["InstrumentID"]
-        contract: ContractData = symbol_contract_map.get(symbol, None)
+        contract: ContractData | None = symbol_contract_map.get(symbol, None)
         if not contract:
             return
 
@@ -510,19 +510,19 @@ class MiniTdApi(TdApi):
         """持仓查询回报"""
         if not data:
             if last:
-                for position in self.positions.values():
-                    self.gateway.on_position(position)
+                for pos in self.positions.values():
+                    self.gateway.on_position(pos)
                 self.positions.clear()
             return
 
         # 必须已经收到了合约信息后才能处理
         symbol: str = data["InstrumentID"]
-        contract: ContractData = symbol_contract_map.get(symbol, None)
+        contract: ContractData | None = symbol_contract_map.get(symbol, None)
 
         if contract:
             # 获取之前缓存的持仓数据缓存
             key: str = f"{data['InstrumentID'], data['PosiDirection']}"
-            position = self.positions.get(key, None)
+            position: PositionData | None = self.positions.get(key, None)
             if not position:
                 position = PositionData(
                     symbol=data["InstrumentID"],
@@ -541,7 +541,7 @@ class MiniTdApi(TdApi):
                 position.yd_volume = data["Position"] - data["TodayPosition"]
 
             # 获取合约的乘数信息
-            size: int = contract.size
+            size: float = contract.size
 
             # 计算之前已有仓位的持仓总成本
             cost: float = position.price * position.volume * size
@@ -650,7 +650,7 @@ class MiniTdApi(TdApi):
         dt = dt.replace(tzinfo=CHINA_TZ)
 
         tp: tuple = (data["OrderPriceType"], data["TimeCondition"], data["VolumeCondition"])
-        order_type: OrderType = ORDERTYPE_MINI2VT.get(tp, None)
+        order_type: OrderType | None = ORDERTYPE_MINI2VT.get(tp, None)
         if not order_type:
             self.gateway.write_log(f"收到不支持的委托类型，委托号：{orderid}")
             return
