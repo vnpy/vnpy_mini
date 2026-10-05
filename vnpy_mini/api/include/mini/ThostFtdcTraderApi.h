@@ -63,7 +63,6 @@ public:
 
 	///客户端认证响应
 	virtual void OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
-	
 
 	///登录请求响应
 	virtual void OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
@@ -143,6 +142,12 @@ public:
 	///请求查询申请组合合约响应
 	virtual void OnRspQryCombInstrument(CThostFtdcCombInstrumentField *pCombInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
+	///请求查询投资者RCAMS组合保证金响应
+	virtual void OnRspQryRCAMSInvestorProdMargin(CThostFtdcRCAMSInvestorProdMarginField *pRCAMSInvestorProdMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///请求查询RCAMS策略组合持仓响应
+	virtual void OnRspQryRCAMSInvestorCombPosition(CThostFtdcRCAMSInvestorCombPositionField *pRCAMSInvestorCombPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
 	///请求查询申请组合响应
 	virtual void OnRspQryCombAction(CThostFtdcCombActionField *pCombAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
@@ -182,6 +187,12 @@ public:
 	///请求查询投资者SPBM品种明细响应
 	virtual void OnRspQryInvestorProdSPBMDetail(CThostFtdcInvestorProdSPBMDetailField *pInvestorProdSPBMDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
+	///请求查询投资者SPMM商品群明细响应
+	virtual void OnRspQrySPMMInvestorCommodityGroupMargin(CThostFtdcSPMMInvestorCommodityGroupMarginField *pSPMMInvestorCommodityGroupMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///请求查询投资者RULE保证金响应
+	virtual void OnRspQryRULEInvestorProdMargin(CThostFtdcRULEInvestorProdMarginField* pRULEInvestorProdMargin, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast) {};
+
 	///请求查询交易员报盘机响应
 	virtual void OnRspQryTraderOffer(CThostFtdcTraderOfferField *pTraderOffer, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
@@ -190,6 +201,12 @@ public:
 
 	///请求查询期权自对冲响应
 	virtual void OnRspQryOptionSelfClose(CThostFtdcOptionSelfCloseField *pOptionSelfClose, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///请求查询交易开关设置响应
+	virtual void OnRspQryControlParam(CThostFtdcControlParamField *pControlParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///请求查询对冲设置响应
+	virtual void OnRspQryOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
 	///错误应答
 	virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
@@ -253,6 +270,31 @@ public:
 
 	///交易所席位流控警告
 	virtual void OnRtnFlowCtrlWarning(CThostFtdcFlowCtrlWarningField *pFlowCtrlWarning) {};
+
+	///订阅资金变动应答
+	virtual void OnRspSubscribeFundChange(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///取消订阅资金变动应答
+	virtual void OnRspUnSubscribeFundChange(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	//资金变动推送
+	virtual void OnRtnFundChange(CThostFtdcTradingAccountField *pTradingAccount) {};
+
+	///对冲设置请求响应
+	virtual void OnRspOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///对冲设置撤销请求响应
+	virtual void OnRspCancelOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///对冲设置通知
+	virtual void OnRtnOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting) {};
+
+	///对冲设置撤销错误回报
+	virtual void OnErrRtnCancelOffsetSetting(CThostFtdcCancelOffsetSettingField *pCancelOffsetSetting, CThostFtdcRspInfoField *pRspInfo) {};
+	
+	///用户口令更新请求响应
+	virtual void OnRspUserPasswordUpdate(CThostFtdcUserPasswordUpdateField *pUserPasswordUpdate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
 };
 
 class TRADER_API_DLL_EXPORT CThostFtdcTraderApi
@@ -367,6 +409,18 @@ public:
 	///申请组合录入请求
 	virtual int ReqCombActionInsert(CThostFtdcInputCombActionField *pInputCombAction, int nRequestID) = 0;
 
+	///订阅资金变动推送
+	virtual int ReqSubscribeFundChange(int nRequestID) = 0;
+
+	///取消订阅资金变动推送
+	virtual int ReqUnSubscribeFundChange(int nRequestID) = 0;
+
+	///对冲设置请求
+	virtual int ReqOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, int nRequestID) = 0;
+
+	///撤销对冲设置请求
+	virtual int ReqCancelOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, int nRequestID) = 0;
+
 	///请求查询报单
 	virtual int ReqQryOrder(CThostFtdcQryOrderField *pQryOrder, int nRequestID) = 0;
 
@@ -402,7 +456,13 @@ public:
 
 	///请求查询申请组合合约
 	virtual int ReqQryCombInstrument(CThostFtdcQryCombInstrumentField* pQryCombInstrument, int nRequestID) = 0;
-	
+
+	///查询投资者RCAMS组合保证金
+	virtual int ReqQryRCAMSInvestorProdMargin(CThostFtdcQryRCAMSInvestorProdMarginField* pQryRCAMSInvestorProdMargin, int nRequestID) = 0;	
+
+	///查询RCAMS策略组合持仓
+	virtual int ReqQryRCAMSInvestorCombPosition(CThostFtdcQryRCAMSInvestorCombPositionField* pQryRCAMSInvestorCombPosition, int nRequestID) = 0;
+
 	///请求单腿持仓汇总
 	virtual int ReqQryInvestorPositionForComb(CThostFtdcQryInvestorPositionForCombField* pQryIPForComb, int nRequestID) = 0;
 	
@@ -443,7 +503,7 @@ public:
 	///请求查询报价
 	virtual int ReqQryQuote(CThostFtdcQryQuoteField *pQryQuote, int nRequestID) = 0;
 
-	///请求查询申报费
+	///请求查询申报费率
 	virtual int ReqQryInstrumentOrderCommRate(CThostFtdcQryInstrumentOrderCommRateField *pQryInstrumentOrderCommRate, int nRequestID) = 0;
 
 	///请求查询询价价差
@@ -454,8 +514,21 @@ public:
 	
 	///请求查询投资者SPBM品种明细
 	virtual int ReqQryInvestorProdSPBMDetail(CThostFtdcQryInvestorProdSPBMDetailField *pQryInvestorProdSPBMDetail, int nRequestID) = 0;
-	
 
+	///请求查询投资者SPMM商品群保证金明细
+	virtual int ReqQrySPMMInvestorCommodityGroupMargin(CThostFtdcQrySPMMInvestorCommodityGroupMarginField *pQrySPMMInvestorCommodityGroupMargin, int nRequestID) = 0;	
+
+	///请求查询投资者RULE保证金明细
+	virtual int ReqQryRULEInvestorProdMargin(CThostFtdcQryRULEInvestorProdMarginField* pQryRULEInvestorProdMargin, int nRequestID) = 0;
+
+	///请求查询系统功能开关设置
+	virtual int ReqQryControlParam(CThostFtdcQryControlParamField *pQryControlParam, int nRequestID) = 0;
+
+	///请求查询对冲设置
+	virtual int ReqQryOffsetSetting(CThostFtdcQryOffsetSettingField *pQryOffsetSetting, int nRequestID) = 0;
+
+	///用户口令更新请求
+	virtual int ReqUserPasswordUpdate(CThostFtdcUserPasswordUpdateField *pUserPasswordUpdate, int nRequestID) = 0;
 protected:
 	~CThostFtdcTraderApi(){};
 };

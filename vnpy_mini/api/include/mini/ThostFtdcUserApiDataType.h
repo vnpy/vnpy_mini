@@ -63,6 +63,16 @@ typedef char TThostFtdcParticipantIDType[11];
 typedef char TThostFtdcUserIDType[16];
 
 /////////////////////////////////////////////////////////////////////////
+///TFtdcControlParamIDType是一个开关代码类型
+/////////////////////////////////////////////////////////////////////////
+typedef char TThostFtdcControlParamIDType;
+
+/////////////////////////////////////////////////////////////////////////
+///TFtdcControlParamValueType是一个开关设置类型
+/////////////////////////////////////////////////////////////////////////
+typedef char TThostFtdcControlParamValueType[81];
+
+/////////////////////////////////////////////////////////////////////////
 ///TFtdcPasswordType是一个密码类型
 /////////////////////////////////////////////////////////////////////////
 typedef char TThostFtdcPasswordType[41];
@@ -76,6 +86,11 @@ typedef char TThostFtdcClientIDType[11];
 ///TFtdcInstrumentIDType是一个合约代码类型
 /////////////////////////////////////////////////////////////////////////
 typedef char TThostFtdcInstrumentIDType[81];
+
+/////////////////////////////////////////////////////////////////////////
+///TFtdcSPMMProductIDType是一个商品群代码类型
+/////////////////////////////////////////////////////////////////////////
+typedef char TThostFtdcSPMMProductIDType[41];
 
 /////////////////////////////////////////////////////////////////////////
 ///TFtdcMarketIDType是一个市场代码类型
@@ -699,9 +714,9 @@ typedef char TThostFtdcRatioAttrType;
 #define THOST_FTDC_HF_Hedge '3'
 ///做市商
 #define THOST_FTDC_HF_MarketMaker '5'
-///第一腿投机第二腿套保 大商所专用
+///第一腿投机第二腿套保
 #define THOST_FTDC_HF_SpecHedge '6'
-///第一腿套保第二腿投机  大商所专用
+///第一腿套保第二腿投机
 #define THOST_FTDC_HF_HedgeSpec '7'
 
 typedef char TThostFtdcHedgeFlagType;
@@ -931,6 +946,8 @@ typedef char TThostFtdcUpperLimitType[80 + 1];
 /////////////////////////////////////////////////////////////////////////
 ///TFtdcTradingRightType是一个交易权限类型
 /////////////////////////////////////////////////////////////////////////
+///默认值
+#define THOST_FTDC_TR_Unset 'x'
 ///可以交易
 #define THOST_FTDC_TR_Allow '0'
 ///只能平仓
@@ -2633,13 +2650,13 @@ typedef char TThostFtdcVirementAvailAbilityType;
 ///TFtdcVirementTradeCodeType是一个交易代码类型
 /////////////////////////////////////////////////////////////////////////
 ///银行发起银行资金转期货
-#define THOST_FTDC_VTC_BankBankToFuture '102001'
+#define THOST_FTDC_VTC_BankBankToFuture '1'
 ///银行发起期货资金转银行
-#define THOST_FTDC_VTC_BankFutureToBank '102002'
+#define THOST_FTDC_VTC_BankFutureToBank '2'
 ///期货发起银行资金转期货
-#define THOST_FTDC_VTC_FutureBankToFuture '202001'
+#define THOST_FTDC_VTC_FutureBankToFuture '3'
 ///期货发起期货资金转银行
-#define THOST_FTDC_VTC_FutureFutureToBank '202002'
+#define THOST_FTDC_VTC_FutureFutureToBank '4'
 
 typedef char TThostFtdcVirementTradeCodeType;
 
@@ -4524,13 +4541,13 @@ typedef char TThostFtdcMonthBillTradeSumType;
 ///TFtdcFBTTradeCodeEnumType是一个银期交易代码枚举类型
 /////////////////////////////////////////////////////////////////////////
 ///银行发起银行转期货
-#define THOST_FTDC_FTC_BankLaunchBankToBroker '102001'
+#define THOST_FTDC_FTC_BankLaunchBankToBroker '1'
 ///期货发起银行转期货
-#define THOST_FTDC_FTC_BrokerLaunchBankToBroker '202001'
+#define THOST_FTDC_FTC_BrokerLaunchBankToBroker '2'
 ///银行发起期货转银行
-#define THOST_FTDC_FTC_BankLaunchBrokerToBank '102002'
+#define THOST_FTDC_FTC_BankLaunchBrokerToBank '3'
 ///期货发起期货转银行
-#define THOST_FTDC_FTC_BrokerLaunchBrokerToBank '202002'
+#define THOST_FTDC_FTC_BrokerLaunchBrokerToBank '4'
 
 typedef char TThostFtdcFBTTradeCodeEnumType;
 
@@ -6522,5 +6539,93 @@ typedef char  TThostFtdcClientAppIDType[33];
 ///TThostFtdcAutoCodeType是AutoCode代码类型
 /////////////////////////////////////////////////////////////////////////
 typedef char  TThostFtdcAutoCodeType[17];
+
+/////////////////////////////////////////////////////////////////////////
+///TThostFtdcCustomOrderRefType是报单自定义字段类型类型
+/////////////////////////////////////////////////////////////////////////
+typedef long long TThostFtdcCustomOrderRefType;
+
+
+/////////////////////////////////////////////////////////////////////////
+///TThostFtdcRULECommodityGroupIDType是RULE商品群号类型
+/////////////////////////////////////////////////////////////////////////
+typedef int TThostFtdcRULECommodityGroupIDType;
+
+/////////////////////////////////////////////////////////////////////////
+///TThostFtdcProductIDType是一个产品代码类型
+/////////////////////////////////////////////////////////////////////////
+typedef char TThostFtdcProductIDType[81];
+
+
+/////////////////////////////////////////////////////////////////////////
+///TThostFtdcRULEInstrClassType是一个RULE合约类型类型
+/////////////////////////////////////////////////////////////////////////
+// 一般月份合约
+#define THOST_FTDC_EIC_Usual '1'
+// 临近交割合约
+#define THOST_FTDC_EIC_Delivery '2'
+// 非组合合约
+#define THOST_FTDC_EIC_NonComb '3'
+typedef char TThostFtdcRULEInstrClassType;
+
+/////////////////////////////////////////////////////////////////////////
+///TThostFtdcOrderFlagType是一个报单标志类型
+///字符串中的第一个字符代表自成交相关的设置，如设置为'1'则不做自成交检查
+/////////////////////////////////////////////////////////////////////////
+//不做自成交检查
+#define THOST_FTDC_SELFTRADE_AvoidSelfTradeCheck '1'
+
+typedef char TThostFtdcOrderFlagType[21];
+
+/////////////////////////////////////////////////////////////////////////
+///TThostFtdcOperateType是一个业务操作类型
+/////////////////////////////////////////////////////////////////////////
+typedef char TThostFtdcOperateType;
+// 新增
+#define THOST_FTDC_OP_ADD '1'
+// 修改
+#define THOST_FTDC_OP_MODIFY '2'
+// 删除
+#define THOST_FTDC_OP_REMOVE '3'
+// 重置
+#define THOST_FTDC_OP_RESET '4'
+// 锁定
+#define THOST_FTDC_OP_LOCK '5'
+
+/////////////////////////////////////////////////////////////////////////
+///TFtdcOffsetTypeType是一个对冲类型类型
+/////////////////////////////////////////////////////////////////////////
+///期权对冲
+#define THOST_FTDC_OT_OPT_OFFSET '0'
+///期货对冲
+#define THOST_FTDC_OT_FUT_OFFSET '1'
+///行权后期货对冲
+#define THOST_FTDC_OT_EXEC_OFFSET '2'
+///履约后期货对冲
+#define THOST_FTDC_OT_PERFORM_OFFSET '3'
+
+typedef char TThostFtdcOffsetTypeType;
+
+/////////////////////////////////////////////////////////////////////////
+///TFtdcApplySrcType是一个申请来源类型
+/////////////////////////////////////////////////////////////////////////
+///交易
+#define THOST_FTDC_AS_Trade '0'
+///会服
+#define THOST_FTDC_AS_Member '1'
+
+typedef char TThostFtdcApplySrcType;
+
+/////////////////////////////////////////////////////////////////////////
+///TFtdcIPACLCheckModeType是IP访问控制校验模式类型
+/////////////////////////////////////////////////////////////////////////
+///IP模式
+#define THOST_FTDC_IPAC_IP 'I'
+///UserID模式
+#define THOST_FTDC_IPAC_UserID 'U'
+
+typedef char TThostFtdcIPACLCheckModeType;
+
+/////////////////////////////////////////////////////////////////////////
 
 #endif

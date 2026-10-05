@@ -1,3 +1,4 @@
+import tempfile
 from collections.abc import Callable, Iterator
 from datetime import datetime
 from typing import Any
@@ -30,6 +31,8 @@ from vnpy.trader.object import (  # noqa: E402
 )
 
 from vnpy_mini.api import (  # noqa: E402
+    MdApi,
+    TdApi,
     THOST_FTDC_CP_CallOptions,
     THOST_FTDC_D_Buy,
     THOST_FTDC_OFEN_Close,
@@ -701,3 +704,14 @@ def test_close_without_connection_does_not_exit(td_api: MiniTdApi, md_api: MiniM
     md_api.close()
 
     assert recorder.calls == []
+
+
+def test_native_api_version() -> None:
+    # 1.7 行情库和交易库的 Release 会访问违例，这里不调用 release 或 exit。
+    md_api: MdApi = MdApi()
+    md_api.createFtdcMdApi(tempfile.mkdtemp())
+    assert md_api.getApiVersion() == "V1.7.5"
+
+    td_api: TdApi = TdApi()
+    td_api.createFtdcTraderApi(tempfile.mkdtemp())
+    assert td_api.getApiVersion() == "V1.7.7"

@@ -77,8 +77,8 @@ class MD_API_DLL_EXPORT CThostFtdcMdApi
 public:
 	///创建MdApi
 	///@param pszFlowPath 存贮订阅信息文件的目录，默认为当前目录
-	///@param bIsUsingUdp 是否使用udp,mini2版本不再使用
-	///@param bIsMulticast 是否使用多播,mini2版本不再使用；api会根据连接的后台自动决定是否使用多播
+	///@param bIsUsingUdp 是否使用udp,mini版本不再使用
+	///@param bIsMulticast 是否使用多播,mini版本不再使用；api会根据连接的后台自动决定是否使用多播
 	///@return 创建出的UserApi
 	///modify for udp marketdata
 	static CThostFtdcMdApi *CreateFtdcMdApi(const char *pszFlowPath = "", const bool bIsUsingUdp = false, const bool bIsMulticast = false);
@@ -138,6 +138,9 @@ public:
 	///用户登录请求
 	virtual int ReqUserLogin(CThostFtdcReqUserLoginField *pReqUserLoginField, int nRequestID) = 0;
 	
+	///用户加密登录请求
+	virtual int ReqUserLoginEncrypt(CThostFtdcReqUserLoginField *pReqUserLoginField, int nRequestID) = 0;
+
 	///登出请求
 	virtual int ReqUserLogout(CThostFtdcUserLogoutField *pUserLogout, int nRequestID) = 0;
 	

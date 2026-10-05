@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <img src ="https://img.shields.io/badge/version-1.6.3.3-blueviolet.svg"/>
+    <img src ="https://img.shields.io/badge/version-1.7.7.0-blueviolet.svg"/>
     <img src ="https://img.shields.io/badge/platform-windows|linux-yellow.svg"/>
     <img src ="https://img.shields.io/badge/python-3.10|3.11|3.12|3.13-blue.svg" />
     <img src ="https://img.shields.io/github/license/vnpy/vnpy.svg?color=orange"/>
@@ -13,7 +13,7 @@
 
 ## 说明
 
-基于CTP Mini的1.6.3接口封装开发。
+基于CTP Mini行情1.7.5、交易1.7.7接口封装开发。
 
 ## 安装
 
