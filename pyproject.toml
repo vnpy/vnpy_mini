@@ -1,6 +1,6 @@
 [project]
 name = "vnpy_mini"
-version = "1.6.3.3"
+version = "1.7.7.0"
 description = "CTP Mini gateway for vn.py quant trading framework."
 readme = "README.md"
 license = {text = "MIT"}
